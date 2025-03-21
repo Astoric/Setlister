@@ -1,0 +1,93 @@
+﻿@page "/artistcallback"
+@using SpotifyAPI.Web;
+@using Setlister.Client.Data;
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<MudPaper Height="250px" Width="100%" Elevation="0" Outlined="false">
+</MudPaper>
+
+<MudGrid Justify="Justify.Center" Style="align-items: center;">
+    <MudItem>
+        <MudText Typo="Typo.h4" Align="Align.Center">Processing Spotify Login...</MudText>
+    </MudItem>
+</MudGrid>
+<MudGrid Justify="Justify.Center" Style="align-items: center;">
+    <MudItem>
+        <br />
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </MudItem>
+</MudGrid>
+
+@code {
+    private string _accessToken;
+    private bool _isTokenProcessed;
+    private string _errorMessage;
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Callback page loaded.");
+
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        Console.WriteLine($"Callback URL: {uri}");
+        var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var code = queryParams["access_token"];
+
+        if (string.IsNullOrEmpty(code))
+        {
+            Console.WriteLine("Authorization code is missing.");
+            _errorMessage = "Authorization code is missing.";
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        Console.WriteLine($"Received authorization code: {code}");
+
+        GetCallback(code);
+    }
+    public async void GetCallback(string code)
+    {
+
+        try
+        {
+
+            Console.WriteLine("Converting Code");
+
+            var response = await new OAuthClient().RequestToken(
+
+                new AuthorizationCodeTokenRequest(
+
+                    "d3bf09ec2ddc49d0b108c94cca30c6cc",
+
+                    "2a113431534a4a1ebe38f5b82efb61a3",
+
+                    code,
+
+                    new Uri("https://localhost:7028/callback")
+
+                )
+
+            );
+
+
+
+            Console.WriteLine($"Access Token: {response.AccessToken}");
+
+            Console.WriteLine($"Refresh Token: {response.RefreshToken}");
+
+
+
+            var spotify = new SpotifyClient(response.AccessToken);
+            Console.WriteLine("Trying to store token");
+            await JSRuntime.InvokeVoidAsync("localstorage.setItem", "spotify_access_token", response.AccessToken.ToString());
+            Console.WriteLine("Stored Token");
+            StateHasChanged();
+            NavigationManager.NavigateTo("/home");
+
+        }
+        catch (APIException ex)
+{
+    Console.WriteLine($"Error response from Spotify: {ex.Response.Body}");
+}
+    }
+}

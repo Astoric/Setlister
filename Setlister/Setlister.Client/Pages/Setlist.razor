@@ -1,0 +1,45 @@
+﻿@page "/setlist"
+@page "/setlist/{SetlistID}"
+@using MudBlazor
+@inject NavigationManager NavigationManager
+<header>
+    <PageTitle>Setlist</PageTitle>
+    <MudAppBar Color="Color.Primary" Fixed="false">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" />
+    </MudAppBar>
+</header>
+
+    <MudPaper Height="250px" Width="100%" Elevation="0" Outlined="false">
+    </MudPaper>
+
+    <MudGrid Justify="Justify.Center" Style="align-items: center;">
+        <MudItem>
+            <img src="https://i.imgur.com/JOvquVC.png" width="450">
+        </MudItem>
+    </MudGrid>
+    <MudGrid Justify="Justify.Center" Style="align-items: center;">
+        <MudItem>
+            <h1>@SetlistID</h1>
+        </MudItem>
+    </MudGrid>
+    <MudGrid Justify="Justify.Center" Style="align-items: center;">
+        <MudItem>
+            <br />
+        </MudItem>
+    </MudGrid>
+
+@code {
+	[Parameter]
+	public string SetlistID { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(SetlistID))
+        {
+            NavigationManager.NavigateTo("/home");
+            return;
+        }
+    }
+}

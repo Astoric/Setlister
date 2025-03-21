@@ -1,0 +1,51 @@
+﻿@page "/Home"
+@using MudBlazor;
+@using SpotifyAPI.Web;
+@using Setlister.Client.Data;
+@using MetaBrainz.MusicBrainz;
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<PageTitle>Home</PageTitle>
+
+<MudPaper Height="250px" Width="100%" Elevation="0" Outlined="false">
+</MudPaper>
+
+<MudGrid Justify="Justify.Center" Style="align-items: center;">
+    <MudItem>
+        <img src="https://i.imgur.com/JOvquVC.png" width="450">
+    </MudItem>
+</MudGrid>
+<MudGrid Justify="Justify.Center" Style="align-items: center;">
+    <MudItem>
+        <h1>Welcome !</h1>
+    </MudItem>
+</MudGrid>
+<MudGrid Justify="Justify.Center" Style="align-items: center;">
+    <MudItem>
+        <br />
+        <MudTextField @bind-Value="bandSearch" Immediate="true" TextUpdateSuppression="false" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" />
+    </MudItem>
+</MudGrid>
+
+@code {
+    string bandSearch = string.Empty;
+
+    protected async void OnInitialized()
+    {
+        var httpClient = new HttpClient();
+
+        // Initialize the Query object with the HttpClient and your user agent string
+        var query = new Query("Setlister", "1.0", "mailto:declanmcglinn@gmail.com");
+
+        // Search for an artist
+        var artists = await query.FindArtistsAsync("Radiohead");
+
+        foreach (var artist in artists.Results)
+        {
+            Console.WriteLine($"{artist.Item.Name} ({artist.Item.Country})");
+        }
+    }
+}

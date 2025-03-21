@@ -1,0 +1,29 @@
+﻿@page "/artist"
+@page "/artist/{ArtistID}"
+@using MudBlazor
+@inject NavigationManager NavigationManager
+
+<PageTitle>Artist</PageTitle>
+
+@if (string.IsNullOrEmpty(ArtistID))
+{
+    @ArtistID
+}
+else
+{
+    @ArtistID
+}
+
+@code {
+	[Parameter]
+    public string ArtistID { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(ArtistID))
+        {
+            NavigationManager.NavigateTo("/home");
+            return;
+        }
+    }
+}

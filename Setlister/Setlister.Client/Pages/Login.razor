@@ -1,0 +1,57 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@using Setlister.Client.Data;
+@using MudBlazor
+@using System.Text.RegularExpressions;
+@using SpotifyAPI.Web;
+@using SpotifyAPI.Web.Auth;
+@using Microsoft.AspNetCore;
+@using System;
+
+<PageTitle>Login</PageTitle>
+
+<MudPaper Height="250px" Width="100%" Elevation="0" Outlined="false">
+</MudPaper>
+
+<MudGrid Justify="Justify.Center" Style="align-items: center;">
+    <MudItem>
+        <img src="https://i.imgur.com/JOvquVC.png" width="450">
+    </MudItem>
+</MudGrid>
+
+<MudGrid Justify="Justify.Center" Style="align-items: center;">
+    <MudItem>
+        <br />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="LoginWithSpotify">Login With Spotify</MudButton>
+    </MudItem>
+</MudGrid>
+@code {
+    private async Task LoginWithSpotify()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<AuthResponse>("spotify/login");
+
+            if (response != null && !string.IsNullOrEmpty(response.url))
+            {
+                Console.WriteLine("Redirect URL: " + response.url); // Log the URL
+                Navigation.NavigateTo(response.url, forceLoad: true); // Redirects user to Spotify login
+            }
+            else
+            {
+                Console.WriteLine("Error: Response or URL is null or empty.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    private class AuthResponse
+    {
+        public string url { get; set; }
+    }
+}

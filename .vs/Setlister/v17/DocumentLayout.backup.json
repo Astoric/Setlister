@@ -1,0 +1,258 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\pages\\test.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\pages\\test.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\pages\\dashboard.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\pages\\dashboard.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\pages\\login.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\pages\\login.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\routes.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\routes.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E5986E02-E63C-4D46-86B6-5A1D9FFBDFC8}|Setlister\\Setlister\\Setlister.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E5986E02-E63C-4D46-86B6-5A1D9FFBDFC8}|Setlister\\Setlister\\Setlister.csproj|solutionrelative:setlister\\setlister\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E5986E02-E63C-4D46-86B6-5A1D9FFBDFC8}|Setlister\\Setlister\\Setlister.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister\\components\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E5986E02-E63C-4D46-86B6-5A1D9FFBDFC8}|Setlister\\Setlister\\Setlister.csproj|solutionrelative:setlister\\setlister\\components\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E5986E02-E63C-4D46-86B6-5A1D9FFBDFC8}|Setlister\\Setlister\\Setlister.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister\\components\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E5986E02-E63C-4D46-86B6-5A1D9FFBDFC8}|Setlister\\Setlister\\Setlister.csproj|solutionrelative:setlister\\setlister\\components\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\components\\authstateprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\components\\authstateprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\pages\\setlist.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\pages\\setlist.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|c:\\users\\decla\\desktop\\files\\setlister\\setlister\\setlister.client\\services\\spotifyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E4897250-F104-4103-BE84-61774A281F98}|Setlister\\Setlister.Client\\Setlister.Client.csproj|solutionrelative:setlister\\setlister.client\\services\\spotifyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Test.razor",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Pages\\Test.razor",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\Pages\\Test.razor",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Pages\\Test.razor",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\Pages\\Test.razor",
+              "ViewState": "AgIAACoAAAAAAAAAAAAAAAQAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-21T11:51:42.003Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "_Imports.razor",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\_Imports.razor",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\_Imports.razor",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\_Imports.razor",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\_Imports.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-21T11:28:23.161Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "MainLayout.razor",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Layout\\MainLayout.razor",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\Layout\\MainLayout.razor",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Layout\\MainLayout.razor",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\Layout\\MainLayout.razor",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-21T11:17:42.127Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "AuthStateProvider.cs",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Components\\AuthStateProvider.cs",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\Components\\AuthStateProvider.cs",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Components\\AuthStateProvider.cs",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\Components\\AuthStateProvider.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAmwBAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-21T11:00:12.626Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "App.razor",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister\\Components\\App.razor",
+              "RelativeDocumentMoniker": "Setlister\\Setlister\\Components\\App.razor",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister\\Components\\App.razor",
+              "RelativeToolTip": "Setlister\\Setlister\\Components\\App.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-21T10:59:17.003Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Home.razor",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Pages\\Home.razor",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\Pages\\Home.razor",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Pages\\Home.razor",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\Pages\\Home.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-19T20:45:26.474Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "SpotifyService.cs",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Services\\SpotifyService.cs",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\Services\\SpotifyService.cs",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Services\\SpotifyService.cs",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\Services\\SpotifyService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-19T20:27:11.424Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Dashboard.razor",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Pages\\Dashboard.razor",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\Pages\\Dashboard.razor",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Pages\\Dashboard.razor",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\Pages\\Dashboard.razor",
+              "ViewState": "AgIAAFYAAAAAAAAAAAAgwGgAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-19T20:18:52.853Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Login.razor",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Pages\\Login.razor",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\Pages\\Login.razor",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Pages\\Login.razor",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\Pages\\Login.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-19T16:42:35.486Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister\\Program.cs",
+              "RelativeDocumentMoniker": "Setlister\\Setlister\\Program.cs",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister\\Program.cs",
+              "RelativeToolTip": "Setlister\\Setlister\\Program.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAABgAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-19T17:14:21.159Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Routes.razor",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Routes.razor",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\Routes.razor",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Routes.razor",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\Routes.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-21T11:28:25.089Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "_Imports.razor",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister\\Components\\_Imports.razor",
+              "RelativeDocumentMoniker": "Setlister\\Setlister\\Components\\_Imports.razor",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister\\Components\\_Imports.razor",
+              "RelativeToolTip": "Setlister\\Setlister\\Components\\_Imports.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-21T11:35:52.694Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Program.cs",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\Program.cs",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Program.cs",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-19T17:14:22.937Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Setlist.razor",
+              "DocumentMoniker": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Pages\\Setlist.razor",
+              "RelativeDocumentMoniker": "Setlister\\Setlister.Client\\Pages\\Setlist.razor",
+              "ToolTip": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister.Client\\Pages\\Setlist.razor",
+              "RelativeToolTip": "Setlister\\Setlister.Client\\Pages\\Setlist.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-20T21:29:57.162Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

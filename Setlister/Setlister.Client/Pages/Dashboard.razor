@@ -1,0 +1,146 @@
+﻿@page "/dashboard"
+
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+
+@using SpotifyAPI.Web
+@using MudBlazor
+@using System.Net.Http
+@using MetaBrainz.MusicBrainz;
+
+@if (!isChecked)
+{
+    <PageTitle>Checking Authentication</PageTitle>
+
+    <MudPaper Height="250px" Width="100%" Elevation="0" Outlined="false">
+    </MudPaper>
+
+    <MudGrid Justify="Justify.Center" Style="align-items: center;">
+        <MudItem>
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </MudItem>
+    </MudGrid>
+    <MudGrid Justify="Justify.Center" Style="align-items: center;">
+        <MudItem>
+            <h1>Checking Authentication...</h1>
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    @if (SpotifyAccessToken != null)
+    {
+        <PageTitle>Home</PageTitle>
+
+        <MudPaper Height="250px" Width="100%" Elevation="0" Outlined="false">
+        </MudPaper>
+
+        <MudGrid Justify="Justify.Center" Style="align-items: center;">
+            <MudItem>
+                <img src="https://i.imgur.com/JOvquVC.png" width="450">
+            </MudItem>
+        </MudGrid>
+        <MudGrid Justify="Justify.Center" Style="align-items: center;">
+            <MudItem>
+                <h1>Welcome @DisplayName!</h1>
+            </MudItem>
+        </MudGrid>
+        <MudGrid Justify="Justify.Center" Style="align-items: center;">
+            <MudItem>
+                <br />
+                <MudTextField @bind-Value="bandSearch" Immediate="true" TextUpdateSuppression="false" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" />
+            </MudItem>
+        </MudGrid>
+    }
+    else
+    {
+        <p>No access token found. Redirecting...</p>
+    }
+}
+
+@code {
+    private string SpotifyAccessToken { get; set; }
+    private string DisplayName { get; set; }
+    private bool isRendered = false;
+    private bool isChecked = false; // This flag ensures we delay rendering until cookie check is done.
+
+    private SpotifyClient _spotifyClient;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !isRendered)
+        {
+            try
+            {
+                Console.WriteLine("OnAfterRenderAsync triggered.");
+
+                // Log the entire cookie string for debugging
+                var cookie = await JSRuntime.InvokeAsync<string>("eval", "document.cookie");
+                Console.WriteLine("Cookies: " + cookie); // Log cookies to console
+
+                if (!string.IsNullOrEmpty(cookie))
+                {
+                    var token = cookie.Split(';')
+                                      .Select(c => c.Trim())
+                                      .FirstOrDefault(c => c.StartsWith("spotify_access_token="))
+                                      ?.Split('=')[1];
+
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        SpotifyAccessToken = token;
+
+                        // Initialize the SpotifyClient with the access token
+                        _spotifyClient = new SpotifyClient(SpotifyAccessToken);
+
+                        // Fetch the user's display name from the Spotify API
+                        var currentUser = await _spotifyClient.UserProfile.Current();
+
+                        if (currentUser != null)
+                        {
+                            DisplayName = currentUser.DisplayName;
+                        }
+                        else
+                        {
+                            DisplayName = "Error retrieving display name.";
+                        }
+                    }
+                    else
+                    {
+                        Navigation.NavigateTo("/");
+                    }
+                }
+                else
+                {
+                    Navigation.NavigateTo("/");
+                }
+            }
+            catch (Exception ex)
+            {
+                DisplayName = "Error retrieving display name: " + ex.Message;
+                Console.WriteLine("Error: " + ex.Message); // Log any errors
+            }
+
+            isRendered = true;
+            isChecked = true; // Set the flag to true to allow rendering the rest of the page
+            StateHasChanged(); // Force re-render to update the UI
+        }
+    }
+
+    string bandSearch = string.Empty;
+
+    protected async void OnInitialized()
+    {
+        var httpClient = new HttpClient();
+
+        // Initialize the Query object with the HttpClient and your user agent string
+        var query = new Query("Setlister", "1.0", "mailto:declanmcglinn@gmail.com");
+
+        // Search for an artist
+        var artists = await query.FindArtistsAsync("Radiohead");
+
+        foreach (var artist in artists.Results)
+        {
+            Console.WriteLine($"{artist.Item.Name} ({artist.Item.Country})");
+        }
+    }
+}
