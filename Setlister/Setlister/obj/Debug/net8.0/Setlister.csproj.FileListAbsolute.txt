@@ -4,6 +4,7 @@ C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister\obj\Debug\net8.0\Setl
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister\obj\Debug\net8.0\Setlister.AssemblyInfo.cs
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister\obj\Debug\net8.0\Setlister.csproj.CoreCompileInputs.cache
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister\obj\Debug\net8.0\Setlister.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister\obj\Debug\net8.0\Setlister.sourcelink.json
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister\bin\Debug\net8.0\Setlister.Client.staticwebassets.runtime.json
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister\bin\Debug\net8.0\Setlister.Client.staticwebassets.endpoints.json
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister\bin\Debug\net8.0\appsettings.Development.json

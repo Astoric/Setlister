@@ -4,6 +4,7 @@ C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\Setlister.Client.AssemblyInfo.cs
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\Setlister.Client.csproj.CoreCompileInputs.cache
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\Setlister.Client.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\Setlister.Client.sourcelink.json
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\blazor.boot.json
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\blazor.webassembly.js
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\dotnet.js
@@ -25,7 +26,6 @@ C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Authentication.Core.wasm
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Authorization.Policy.wasm
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Authorization.wasm
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Components.Authorization.wasm
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Components.Forms.wasm
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Components.wasm
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Components.Web.wasm
@@ -380,7 +380,6 @@ C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\icudt_no_CJK.dat.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Components.Web.wasm.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\System.Security.Cryptography.Encoding.wasm.gz
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\Microsoft.AspNetCore.Components.Authorization.wasm.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\System.IO.Pipelines.wasm.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\System.IO.FileSystem.Primitives.wasm.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\wwwroot\_framework\Microsoft.Extensions.Primitives.wasm.gz
@@ -562,7 +561,6 @@ C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\Microsoft.AspNetCore.Authorization.dll
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\Microsoft.AspNetCore.Authorization.Policy.dll
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\Microsoft.AspNetCore.Components.dll
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\Microsoft.AspNetCore.Components.Authorization.dll
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\Microsoft.AspNetCore.Components.Forms.dll
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\Microsoft.AspNetCore.Components.Web.dll
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\bin\Debug\net8.0\Microsoft.AspNetCore.Components.WebAssembly.dll
@@ -830,7 +828,6 @@ C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Authorization.wasm
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Authorization.Policy.wasm
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.wasm
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.Authorization.wasm
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.Forms.wasm
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.Web.wasm
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.WebAssembly.wasm
@@ -1093,7 +1090,6 @@ C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\w2qf2k656b-a1a564i1z5.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\5atkzdsf0n-tnvtbz267h.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\gb6dnazqxk-3sr6cqqjee.gz
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\fnsyo773qg-kvcvutmuvo.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\brjwj1j6wn-p956m9cwdv.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\ffyhfkxovn-y92l3ziktn.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\0g6jyjo8kw-9v0wgk68ii.gz
@@ -1152,8 +1148,8 @@ C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\x8x9w7nwnz-rpvltkbyzt.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\im0md639kq-i464dwxnbb.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\fdnmee1kol-kpoaap44tz.gz
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\p5kyaxnuap-wf6yp0rkhr.gz
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\lsn7lazr3b-0orhvugfr1.gz
+C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\p5kyaxnuap-5z90s42y4u.gz
+C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\lsn7lazr3b-47li9wjxov.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\octr6hp33u-xlpspxuy08.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\p604snoft4-tz325eqvv5.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\70wi0xt9jh-rlqdh3tt45.gz
@@ -1163,7 +1159,7 @@ C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\58rheuj44z-0bb0yv8d29.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\wfph67tndx-snl94izhmy.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\xbon814j98-vhfw8f9f40.gz
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\0jbkd98nj0-7eb1t84tpg.gz
+C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\0jbkd98nj0-o6em7cgr0y.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\ljiowg6mw4-qkbufwhni2.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\1o3yacuh37-7s2lu6qjd0.gz
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\3c4z1zo9mf-rup1o3413x.gz
@@ -1366,6 +1362,6 @@ C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\refint\Setlister.Client.dll
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\Setlister.Client.pdb
 C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\ref\Setlister.Client.dll
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\kmepex1mu0-k09j07jyjs.gz
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\6r3s2ygiuq-jla1tplqp6.gz
-C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\wmf8r026x7-0gtd9vfzdj.gz
+C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\kmepex1mu0-94n7qkpnac.gz
+C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\6r3s2ygiuq-417o4peiaj.gz
+C:\Users\decla\Desktop\Files\Setlister\Setlister\Setlister.Client\obj\Debug\net8.0\compressed\wmf8r026x7-k5cn5engwn.gz

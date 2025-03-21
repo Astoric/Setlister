@@ -1,8 +1,60 @@
 ﻿@page "/test"
 
-<MudList>
-    <MudListItem Text="Dashboard" Icon="@Icons.Material.Filled.Dashboard" Href="/dashboard"/>
-    <MudListItem Text="Artists" Icon="@Icons.Material.Filled.People" Href="/artists" />
-    <MudListItem Text="Created Playlists" Icon="@Icons.Material.Filled.List" Href="/playlists" />
-    <MudListItem Text="Settings" Icon="@Icons.Material.Filled.Settings" Href="/settings" />
-</MudList>
+<MudLayout>
+    <MudAppBar Elevation="0">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerOpen = !DrawerOpen)" />
+        <MudText Typo="Typo.h6" Class="ml-3">EXPT</MudText>
+
+        <MudSpacer />
+
+        <MudMenu Label="NAME" Variant="Variant.Text" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+            <MudMenuItem>
+                <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="Logout">Logout</MudButton>
+            </MudMenuItem>
+        </MudMenu>
+        <MudAvatar Image="https://randomuser.me/api/portraits/men/74.jpg" Class="ml-3" />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="@DrawerOpen" Elevation="1" ClipMode="DrawerClipMode.Always">
+        <MudNavMenu>
+            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt">Artists</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LibraryMusic">Playlists</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent Style="overflow-y: auto; height: calc(100vh - 64px);">
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+            <!-- Main Dashboard Content Goes Here -->
+            <MudPaper Class="pa-4">
+                <h2>Dashboard Content</h2>
+                <p>This is where your actual dashboard components would go.</p>
+            </MudPaper>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+<style>
+    .mud-list-item-selected {
+        background-color: rgba(255, 255, 255, 0.1); /* Adjust the color as needed */
+    }
+</style>
+
+@code {
+    bool DrawerOpen = true;
+    private string CurrentPage { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Get the current URL
+        CurrentPage = NavigationManager.Uri;
+    }
+
+    [Inject]
+    NavigationManager NavigationManager { get; set; }
+
+    private void Logout()
+    {
+        //logout
+    }
+}
