@@ -54,13 +54,14 @@
               "target": "Package",
               "version": "[6.1.0, )"
             },
-            "Microsoft.AspNetCore.Components.Authorization": {
-              "target": "Package",
-              "version": "[8.0.0, )"
-            },
             "Microsoft.AspNetCore.Components.WebAssembly": {
               "target": "Package",
-              "version": "[8.*, )"
+              "version": "[8.0.*, )"
+            },
+            "Microsoft.AspNetCore.Components.WebAssembly.DevServer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.*, )"
             },
             "Microsoft.AspNetCore.Http": {
               "target": "Package",
@@ -84,7 +85,7 @@
             },
             "MudBlazor": {
               "target": "Package",
-              "version": "[7.*, )"
+              "version": "[8.3.0, )"
             },
             "SpotifyAPI": {
               "target": "Package",

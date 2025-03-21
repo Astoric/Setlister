@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2vCnqe8UTEM=",
+  "dgSpecHash": "pXRV7RiNtPk=",
   "success": true,
   "projectFilePath": "C:\\Users\\decla\\Desktop\\Files\\Setlister\\Setlister\\Setlister\\Setlister.csproj",
   "expectedPackageFiles": [
@@ -78,8 +78,8 @@
     "C:\\Users\\decla\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\8.0.0\\microsoft.extensions.fileproviders.physical.8.0.0.nupkg.sha512",
     "C:\\Users\\decla\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\8.0.0\\microsoft.extensions.filesystemglobbing.8.0.0.nupkg.sha512",
     "C:\\Users\\decla\\.nuget\\packages\\microsoft.extensions.hosting.abstractions\\8.0.1\\microsoft.extensions.hosting.abstractions.8.0.1.nupkg.sha512",
-    "C:\\Users\\decla\\.nuget\\packages\\microsoft.extensions.localization\\8.0.11\\microsoft.extensions.localization.8.0.11.nupkg.sha512",
-    "C:\\Users\\decla\\.nuget\\packages\\microsoft.extensions.localization.abstractions\\8.0.11\\microsoft.extensions.localization.abstractions.8.0.11.nupkg.sha512",
+    "C:\\Users\\decla\\.nuget\\packages\\microsoft.extensions.localization\\8.0.12\\microsoft.extensions.localization.8.0.12.nupkg.sha512",
+    "C:\\Users\\decla\\.nuget\\packages\\microsoft.extensions.localization.abstractions\\8.0.12\\microsoft.extensions.localization.abstractions.8.0.12.nupkg.sha512",
     "C:\\Users\\decla\\.nuget\\packages\\microsoft.extensions.logging\\8.0.1\\microsoft.extensions.logging.8.0.1.nupkg.sha512",
     "C:\\Users\\decla\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.3\\microsoft.extensions.logging.abstractions.8.0.3.nupkg.sha512",
     "C:\\Users\\decla\\.nuget\\packages\\microsoft.extensions.objectpool\\8.0.11\\microsoft.extensions.objectpool.8.0.11.nupkg.sha512",
@@ -92,7 +92,7 @@
     "C:\\Users\\decla\\.nuget\\packages\\microsoft.netcore.platforms\\2.0.0\\microsoft.netcore.platforms.2.0.0.nupkg.sha512",
     "C:\\Users\\decla\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",
     "C:\\Users\\decla\\.nuget\\packages\\microsoft.win32.registry\\4.5.0\\microsoft.win32.registry.4.5.0.nupkg.sha512",
-    "C:\\Users\\decla\\.nuget\\packages\\mudblazor\\7.16.0\\mudblazor.7.16.0.nupkg.sha512",
+    "C:\\Users\\decla\\.nuget\\packages\\mudblazor\\8.3.0\\mudblazor.8.3.0.nupkg.sha512",
     "C:\\Users\\decla\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\decla\\.nuget\\packages\\newtonsoft.json.bson\\1.0.2\\newtonsoft.json.bson.1.0.2.nupkg.sha512",
     "C:\\Users\\decla\\.nuget\\packages\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
