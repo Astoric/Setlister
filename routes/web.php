@@ -71,6 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/past-gigs', [GigController::class, 'pastGigs'])->name('past-gigs');
     Route::post('/gigs', [GigController::class, 'store'])->name('gigs.store');
     Route::patch('/gigs/{gig}', [GigController::class, 'update'])->name('gigs.update');
+    Route::delete('/gigs/{gig}', [GigController::class, 'destroy'])->name('gigs.destroy');
 
     /**
      * Setlist Management
@@ -80,6 +81,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/setlists', [SetlistController::class, 'store'])->name('setlists.store');
     Route::get('/setlists/{setlistId}/details', [SetlistController::class, 'fetchDetailedSetlist'])->name('setlists.details');
     Route::get('/setlists/{setlist}', [SetlistController::class, 'show'])->name('setlists.show');
+    Route::delete('/setlists/{setlist}', [SetlistController::class, 'destroy'])->name('setlists.destroy');
     Route::post('/setlists/{setlist}/generate-spotify-playlist', [SetlistController::class, 'generateSpotifyPlaylist'])->name('setlists.generate-spotify-playlist');
 
     /**

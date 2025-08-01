@@ -304,4 +304,26 @@ class SetlistController extends Controller
             return redirect()->back()->with('error', 'An unexpected error occurred during playlist generation.');
         }
     }
+
+    /**
+     * Delete the specified setlist from storage.
+     */
+    public function destroy(Setlist $setlist)
+    {
+        if ($setlist->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $setlist->delete();
+
+            session()->flash('success', 'Setlist deleted successfully!');
+
+            return redirect()->route('saved-setlists');
+        } catch (\Exception $e) {
+            \Log::error('Error deleting setlist:', ['error' => $e->getMessage(), 'setlist_id' => $setlist->id]);
+
+            return redirect()->back()->withErrors(['message' => 'An unexpected error occurred while deleting the setlist.']);
+        }
+    }
 }

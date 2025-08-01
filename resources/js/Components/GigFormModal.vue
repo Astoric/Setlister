@@ -1,5 +1,5 @@
 <script setup>
-import { computed, watch } from "vue";
+import { computed, watch, ref } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
@@ -27,6 +27,8 @@ const form = useForm({
     support_acts: [],
     people_attending: [],
 });
+
+const confirmingGigDeletion = ref(false);
 
 /**
  * Watches changes in modal visibility and gig prop to initialize or reset the form.
@@ -139,6 +141,28 @@ const submit = () => {
         });
     }
 };
+
+/**
+ * Initiates the gig deletion confirmation.
+ */
+const confirmGigDeletion = () => {
+    confirmingGigDeletion.value = true;
+};
+
+/**
+ * Deletes the gig.
+ */
+const deleteGig = () => {
+    form.delete(route("gigs.destroy", props.gig.id), {
+        onSuccess: () => {
+            emit("close");
+        },
+        onError: () => {},
+        onFinish: () => {
+            confirmingGigDeletion.value = false;
+        },
+    });
+};
 </script>
 
 <template>
@@ -226,22 +250,66 @@ const submit = () => {
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex justify-end space-x-4">
-                    <!-- Cancel Button -->
+                <div class="mt-6 flex items-center justify-between space-x-4">
+                    <!-- Delete Button (shown only in Edit Mode) -->
                     <button
+                        v-if="gig"
                         type="button"
-                        @click="emit('close')"
-                        class="rounded-lg bg-neutral-700 px-4 py-2 text-white transition-colors hover:bg-neutral-600">
-                        Cancel
+                        @click="confirmGigDeletion"
+                        class="rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700">
+                        Delete Gig
                     </button>
-                    <!-- Submit Button -->
-                    <PrimaryButton
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing">
-                        {{ submitButtonText }}
-                    </PrimaryButton>
+                    <!-- Spacer if not in edit mode -->
+                    <div v-else></div>
+
+                    <div class="flex space-x-4">
+                        <!-- Cancel Button -->
+                        <button
+                            type="button"
+                            @click="emit('close')"
+                            class="rounded-lg bg-neutral-700 px-4 py-2 text-white transition-colors hover:bg-neutral-600">
+                            Cancel
+                        </button>
+                        <!-- Submit Button -->
+                        <PrimaryButton
+                            :class="{ 'opacity-25': form.processing }"
+                            :disabled="form.processing">
+                            {{ submitButtonText }}
+                        </PrimaryButton>
+                    </div>
                 </div>
             </form>
+        </div>
+    </Modal>
+
+    <!-- Delete Confirmation Modal -->
+    <Modal
+        :show="confirmingGigDeletion"
+        @close="confirmingGigDeletion = false"
+        :maxWidth="'sm'">
+        <div class="p-6 bg-neutral-900 text-white rounded-lg">
+            <h3 class="text-lg font-medium text-white mb-4">
+                Are you sure you want to delete this gig?
+            </h3>
+            <p class="text-sm text-neutral-400 mb-6">
+                This action cannot be undone. All associated data, including its
+                setlist, will be permanently removed.
+            </p>
+            <div class="flex justify-end space-x-3">
+                <button
+                    type="button"
+                    @click="confirmingGigDeletion = false"
+                    class="rounded-lg bg-neutral-700 px-4 py-2 text-white transition-colors hover:bg-neutral-600">
+                    Cancel
+                </button>
+                <PrimaryButton
+                    @click="deleteGig"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                    class="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">
+                    Delete
+                </PrimaryButton>
+            </div>
         </div>
     </Modal>
 </template>

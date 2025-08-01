@@ -60,7 +60,7 @@ class GigController extends Controller
             $validated = $request->validate([
                 'artist_band_name' => ['required', 'string', 'max:255'],
                 'venue' => ['required', 'string', 'max:255'],
-                'gig_date_time' => ['required', 'date', 'after_or_equal:now'],
+                'gig_date_time' => ['required', 'date'],
                 'support_acts' => ['nullable', 'json'],
                 'people_attending' => ['nullable', 'json'],
             ]);
@@ -84,9 +84,8 @@ class GigController extends Controller
                 $gig->people_attending = is_string($gig->people_attending) ? json_decode($gig->people_attending, true) : $gig->people_attending;
             });
 
-            return Inertia::render('UpcomingGigs', [
-                'gigs' => $gigs,
-            ]);
+            return redirect()->route('dashboard');
+
         } catch (ValidationException $e) {
             return redirect()->back()
                 ->withErrors($e->errors())
@@ -111,7 +110,7 @@ class GigController extends Controller
             $validated = $request->validate([
                 'artist_band_name' => ['required', 'string', 'max:255'],
                 'venue' => ['required', 'string', 'max:255'],
-                'gig_date_time' => ['required', 'date', 'after_or_equal:now'],
+                'gig_date_time' => ['required', 'date'],
                 'support_acts' => ['nullable', 'json'],
                 'people_attending' => ['nullable', 'json'],
             ]);
@@ -139,9 +138,14 @@ class GigController extends Controller
                 $gig->people_attending = is_string($gig->people_attending) ? json_decode($gig->people_attending, true) : $gig->people_attending;
             });
 
-            return Inertia::render('UpcomingGigs', [
-                'gigs' => $gigs,
-            ]);
+            $updatedGig = $gig->fresh();
+
+            if ($updatedGig->gig_date_time->isFuture()) {
+                return redirect()->route('dashboard');
+            } else {
+                return redirect()->route('past-gigs');
+            }
+
         } catch (ValidationException $e) {
             return redirect()->back()
                 ->withErrors($e->errors())
@@ -150,6 +154,28 @@ class GigController extends Controller
             \Log::error('Error updating gig:', ['error' => $e->getMessage(), 'gig_id' => $gig->id]);
 
             return redirect()->back()->withErrors(['message' => 'An unexpected error occurred while updating the gig.']);
+        }
+    }
+
+    /**
+     * Delete the specified gig from storage.
+     */
+    public function destroy(Gig $gig)
+    {
+        if ($gig->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $gig->delete();
+
+            session()->flash('success', 'Gig deleted successfully!');
+
+            return redirect()->route('dashboard');
+        } catch (\Exception $e) {
+            \Log::error('Error deleting gig:', ['error' => $e->getMessage(), 'gig_id' => $gig->id]);
+
+            return redirect()->back()->withErrors(['message' => 'An unexpected error occurred while deleting the gig.']);
         }
     }
 }

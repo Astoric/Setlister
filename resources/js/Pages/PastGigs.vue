@@ -5,6 +5,8 @@ import { ref, computed, watch } from "vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SetlistGeneratorModal from "@/Components/SetlistGeneratorModal.vue";
 import GigDetailModal from "@/Components/GigDetailModal.vue";
+import { PlusIcon, PencilIcon } from "@heroicons/vue/24/outline";
+import GigFormModal from "@/Components/GigFormModal.vue";
 
 const props = defineProps({
     gigs: Array,
@@ -13,8 +15,21 @@ const props = defineProps({
 const showGigDetailModal = ref(false);
 const selectedGigForDetail = ref(null);
 
+const showEditGigModal = ref(false);
+const selectedGigForEdit = ref(null);
+
 const showSetlistModal = ref(false);
 const selectedGigForSetlist = ref(null);
+
+const openEditGigModal = (gig) => {
+    selectedGigForEdit.value = gig;
+    showEditGigModal.value = true;
+};
+
+const closeEditGigModal = () => {
+    showEditGigModal.value = false;
+    selectedGigForEdit.value = null;
+};
 
 const processedGigs = ref([]);
 watch(
@@ -174,12 +189,20 @@ const formatDateTime = (dateTimeString) => {
                         <!-- Buttons (Right) -->
                         <div
                             class="flex-shrink-0 flex items-center space-x-2 ml-4">
+                            <!-- Edit Gig Button -->
+                            <PrimaryButton
+                                @click.stop="openEditGigModal(gig)"
+                                class="bg-neutral-700 hover:bg-neutral-600 text-white p-2 rounded-lg"
+                                title="Edit Gig">
+                                <PencilIcon class="h-5 w-5" />
+                            </PrimaryButton>
+
                             <!-- Generate Setlist Button -->
                             <PrimaryButton @click.stop="openSetlistModal(gig)">
                                 Generate Setlist
                             </PrimaryButton>
 
-                            <!--Right arrow icon -->
+                            <!-- Right arrow icon -->
                             <svg
                                 class="h-5 w-5 text-neutral-400 ml-2"
                                 fill="none"
@@ -208,5 +231,11 @@ const formatDateTime = (dateTimeString) => {
             :show="showSetlistModal"
             :gig="selectedGigForSetlist"
             @close="closeSetlistModal" />
+
+        <!-- Edit Gig Modal -->
+        <GigFormModal
+            :show="showEditGigModal"
+            :gig="selectedGigForEdit"
+            @close="closeEditGigModal" />
     </AuthenticatedLayout>
 </template>
