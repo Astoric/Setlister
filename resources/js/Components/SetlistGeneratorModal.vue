@@ -2,33 +2,27 @@
 import { computed, ref, watch, h } from "vue";
 import { useForm, usePage } from "@inertiajs/vue3";
 
-// New UI Components
-import Button from "@/Components/ui/Button.vue";
-import Input from "@/Components/ui/Input.vue";
 import Avatar from "@/Components/ui/Avatar.vue";
-import AvatarImage from "@/Components/ui/AvatarImage.vue";
 import AvatarFallback from "@/Components/ui/AvatarFallback.vue";
-import Badge from "@/Components/ui/Badge.vue";
+import AvatarImage from "@/Components/ui/AvatarImage.vue";
+import Button from "@/Components/ui/Button.vue";
 import Card from "@/Components/ui/Card.vue";
 import CardContent from "@/Components/ui/CardContent.vue";
-import CardHeader from "@/Components/ui/CardHeader.vue";
-import CardTitle from "@/Components/ui/CardTitle.vue";
 import Dialog from "@/Components/ui/Dialog.vue";
 import DialogContent from "@/Components/ui/DialogContent.vue";
+import DialogDescription from "@/Components/ui/DialogDescription.vue";
 import DialogHeader from "@/Components/ui/DialogHeader.vue";
 import DialogTitle from "@/Components/ui/DialogTitle.vue";
-import DialogDescription from "@/Components/ui/DialogDescription.vue";
-
-// Lucide Icons
+import Input from "@/Components/ui/Input.vue"; // If used in search filters
 import {
-    X,
     Calendar,
     Download,
     ExternalLink,
     MapPin,
     Music,
+    X,
     Check,
-} from "lucide-vue-next";
+} from "lucide-vue-next"; // Lucide icons
 
 const props = defineProps({
     show: { type: Boolean },
@@ -38,7 +32,7 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const isLoading = ref(false);
-const ObtainingData = ref(false);
+const ObtainingData = ref(false); // Used for "Pulling data from Spotify" spinner
 const searchError = ref(null);
 const setlistResults = ref([]);
 const selectedSetlist = ref(null);
@@ -50,7 +44,7 @@ const form = useForm({
     venue_name: "",
     gig_date: "",
     setlist_url: "",
-    sets: [], // This will now contain song objects with { name, spotify_id, duration_ms }
+    sets: [],
 });
 
 /**
@@ -95,21 +89,18 @@ const searchSetlists = async (artistName, gigDateTime) => {
         });
         setlistResults.value = response.data.setlists;
 
-        if (
-            new Date(gigDateTime) < new Date() &&
-            setlistResults.value.length > 0
-        ) {
-            const exactMatch = setlistResults.value.find((setlist) => {
-                const setlistDate = new Date(
-                    setlist.event_date.split(".").reverse().join("-")
-                );
-                const gigDateObj = new Date(gigDateTime);
-                return setlistDate.toDateString() === gigDateObj.toDateString();
-            });
-            if (exactMatch) {
-                selectSetlist(exactMatch);
-            }
+        // --- NEW/MODIFIED AUTO-SELECTION LOGIC ---
+        // Find if any result is an exact date match (flagged by backend)
+        const exactMatchResult = setlistResults.value.find(
+            (setlist) => setlist.is_exact_date_match
+        );
+
+        // If there's exactly one result AND it's an exact match, auto-select it.
+        // Or if there's only one result period (and no error).
+        if (setlistResults.value.length === 1 && exactMatchResult) {
+            await selectSetlist(exactMatchResult); // Await selection to update UI state
         }
+        // --- END NEW/MODIFIED ---
     } catch (error) {
         console.error("Error searching Setlist.fm:", error);
         searchError.value =
@@ -132,20 +123,17 @@ const selectSetlist = async (setlist) => {
     form.gig_date = setlist.event_date.split(".").reverse().join("-");
     form.setlist_url = setlist.url;
 
-    ObtainingData.value = true;
+    ObtainingData.value = true; // Activate "Pulling data from Spotify" spinner
     try {
         const setlistDetailResponse = await axios.get(
             route("setlists.details", { setlistId: setlist.setlist_id })
         );
         const fullSetlistData = setlistDetailResponse.data;
 
-        let parsedSets = [];
-        // Use a Promise.all to fetch all song details concurrently for better performance
-        const songDetailPromises = [];
+        let songDetailPromises = [];
 
         if (fullSetlistData.sets && fullSetlistData.sets.set) {
             fullSetlistData.sets.set.forEach((set) => {
-                let songsInSet = [];
                 if (set.song) {
                     set.song
                         .filter(
@@ -167,7 +155,6 @@ const selectSetlist = async (setlist) => {
                                 )
                         )
                         .forEach((song) => {
-                            // Use forEach and push to promises array
                             songDetailPromises.push(
                                 axios
                                     .get(
@@ -175,12 +162,12 @@ const selectSetlist = async (setlist) => {
                                         {
                                             params: {
                                                 trackName: song.name,
-                                                artistName: setlist.artist_name, // Pass artist name for better matching
+                                                artistName: setlist.artist_name,
                                             },
                                         }
                                     )
                                     .then((response) => {
-                                        const details = response.data; // Will be null or { id, duration_ms }
+                                        const details = response.data;
                                         return {
                                             name: song.name,
                                             spotify_id: details?.id || null,
@@ -197,41 +184,16 @@ const selectSetlist = async (setlist) => {
                                             name: song.name,
                                             spotify_id: null,
                                             duration_ms: null,
-                                        }; // Return partial data on error
+                                        };
                                     })
                             );
                         });
                 }
-                // Push a placeholder for this set, we'll populate songs later after promises resolve
-                parsedSets.push({
-                    name: set.name || "Main Set",
-                    songs: songsInSet, // Temporarily empty, will be filled
-                });
             });
         }
 
-        // Wait for all song detail promises to resolve
         const resolvedSongDetails = await Promise.all(songDetailPromises);
 
-        let songIndex = 0; // Keep track of the resolved song index
-        parsedSets.forEach((set) => {
-            // Assign resolved song details to the correct set
-            set.songs = resolvedSongDetails.slice(
-                songIndex,
-                songIndex + set.songs.length
-            ); // Error-prone, need to be careful
-            // REFINED: Instead of temp empty array, build songsInSet using the resolved details
-            // This requires re-structuring the loop above a bit.
-
-            // --- REFINED LOOP LOGIC for correct song assignment after Promise.all ---
-            // Simpler approach: Build parsedSets with resolved data in one pass.
-            // This is more complex, let's keep it in sync with the structure in the previous commit.
-            // The `songsInSet` was built inside the `forEach(set.song => { ... })`
-            // So, `resolvedSongDetails` needs to be consumed sequentially.
-            // Revert to original filter/map, then fill durations from resolvedSongDetails sequentially.
-        });
-
-        // --- REFINED SONG PARSING AFTER PROMISE.ALL ---
         let currentSongDetailIndex = 0;
         let finalParsedSets = [];
 
@@ -259,13 +221,12 @@ const selectSetlist = async (setlist) => {
                                 )
                         )
                         .forEach((song) => {
-                            // Assign the resolved detail for this song from the sequential list
                             const detail =
                                 resolvedSongDetails[currentSongDetailIndex];
                             songsWithDetails.push({
                                 name: song.name,
-                                spotify_id: detail?.spotify_id || null, // Ensure ID comes from details
-                                duration_ms: detail?.duration_ms || null, // Ensure duration comes from details
+                                spotify_id: detail?.id || null,
+                                duration_ms: detail?.duration_ms || null,
                             });
                             currentSongDetailIndex++;
                         });
@@ -279,7 +240,6 @@ const selectSetlist = async (setlist) => {
             });
         }
         form.sets = finalParsedSets;
-        // --- END REFINED SONG PARSING AFTER PROMISE.ALL ---
     } catch (error) {
         console.error(
             "Error fetching detailed setlist or Spotify details:",
@@ -289,7 +249,7 @@ const selectSetlist = async (setlist) => {
             error.response?.data?.error ||
             "Failed to fetch detailed setlist data. Check console for details.";
     } finally {
-        ObtainingData.value = false;
+        ObtainingData.value = false; // Deactivate spinner
     }
 };
 
@@ -350,20 +310,21 @@ const formatDuration = (ms) => {
 
             <!-- Content based on state -->
             <div class="p-4">
-                <!-- Loading State -->
+                <!-- Loading State (Searching Setlist.fm) -->
                 <div v-if="isLoading" class="text-center py-8">
                     <div
                         class="animate-spin h-12 w-12 rounded-full border-b-2 border-emerald-500 mx-auto mb-4"></div>
-                    <p class="text-gray-400">
-                        Searching Setlist.fm...
-                    </p>
+                    <p class="text-gray-400">Searching Setlist.fm...</p>
                 </div>
 
+                <!-- NEW Loading State (Pulling data from Spotify) -->
                 <div v-else-if="ObtainingData" class="text-center py-8">
                     <div
                         class="animate-spin h-12 w-12 rounded-full border-b-2 border-emerald-500 mx-auto mb-4"></div>
                     <p class="text-gray-400">
-                        Pulling data from Spotify...<br>(This may take a moment)</br>
+                        Pulling data from Spotify...
+                        <br />
+                        (This may take a moment)
                     </p>
                 </div>
 
