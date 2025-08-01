@@ -1,16 +1,18 @@
 <script setup>
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
-import Button from "@/Components/ui/Button.vue"; // Using our new Button
-import Input from "@/Components/ui/Input.vue"; // Using our new Input
-import Label from "@/Components/ui/Label.vue"; // Using our new Label
-import { useForm, usePage } from "@inertiajs/vue3";
+import Button from "@/Components/ui/Button.vue";
+import Input from "@/Components/ui/Input.vue";
+import Label from "@/Components/ui/Label.vue";
+import { useForm, usePage } from "@inertiajs/vue3"; // REMOVED 'router' import
 import { computed } from "vue";
 
-// Lucide Icons (as used in App.jsx)
-import { Check, ExternalLink, Music } from "lucide-vue-next"; // Add Music and Check icons
+// Lucide Icons
+import { Check, ExternalLink, Music } from "lucide-vue-next";
+import Card from "@/Components/ui/Card.vue";
+import CardContent from "@/Components/ui/CardContent.vue";
 
-const user = usePage().props.auth.user; // Get user from page props
+const user = usePage().props.auth.user;
 
 const form = useForm({
     spotify_app_client_id: user.spotify_app_client_id || "",
@@ -52,6 +54,13 @@ const spotifyTokenExpiresAtDisplay = computed(() =>
         ? new Date(user.spotify_token_expires_at).toLocaleString()
         : "N/A"
 );
+
+// --- MODIFIED: Method to initiate Spotify OAuth redirect using native browser navigation ---
+const redirectToSpotifyAuth = () => {
+    // THIS IS THE DEFINITIVE FIX FOR CORS ON OAUTH REDIRECTS
+    window.location.href = route("spotify.redirect"); // Forces full browser page redirect
+};
+// --- END MODIFIED ---
 </script>
 
 <template>
@@ -66,7 +75,6 @@ const spotifyTokenExpiresAtDisplay = computed(() =>
         </header>
 
         <Card class="bg-[#191919] border-gray-600">
-            <!-- Using Card component for this section -->
             <CardContent class="p-6">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-3">
@@ -94,33 +102,25 @@ const spotifyTokenExpiresAtDisplay = computed(() =>
 
                     <Button
                         v-if="isSpotifyAccountConnected"
-                        as="a"
-                        :href="route('spotify.redirect')"
+                        @click="redirectToSpotifyAuth"
                         variant="outline"
                         class="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-200">
-                        Disconnect
-                        <!-- In App.jsx this was disconnect, but here it's "Re-Connect" -->
-                        <!-- If "Disconnect" logic is added later, this button would trigger it -->
                         Re-Connect
                     </Button>
                     <Button
                         v-else
-                        as="a"
-                        :href="route('spotify.redirect')"
+                        @click="redirectToSpotifyAuth"
                         class="bg-green-500 hover:bg-green-600 transition-all duration-200">
                         <ExternalLink class="w-4 h-4 mr-2" />
                         Connect Account
                     </Button>
                 </div>
 
-                <div
-                    v-if="isSpotifyAccountConnected"
-                    class="pt-4 border-t border-gray-700">
+                <div class="pt-4 border-t border-gray-700">
                     <p class="text-sm text-gray-400 mb-4">
                         Last updated: {{ spotifyTokenExpiresAtDisplay }}
                     </p>
 
-                    <!-- Original Spotify App Credentials fields -->
                     <p class="mt-1 text-sm text-neutral-400 mb-4">
                         To use this app, please create an app on the
                         <a
@@ -173,7 +173,7 @@ const spotifyTokenExpiresAtDisplay = computed(() =>
 
                         <Button
                             @click.prevent="updateSpotifyAppCredentials"
-                            class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 transition-all duration-200">
+                            class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 transition-all duration-200">
                             <Check
                                 v-if="form.recentlySuccessful"
                                 class="mr-2 h-4 w-4" />
