@@ -175,7 +175,7 @@ const isActive = (path) => usePage().url.startsWith(path);
             </header>
 
             <!-- Page Content -->
-            <main class="mb-6 mr-6 flex-1 rounded-lg bg-neutral-800 p-6">
+            <main class="mb-6 mr-6 ml-6 flex-1 rounded-lg bg-neutral-800 p-6">
                 <slot />
             </main>
         </div>

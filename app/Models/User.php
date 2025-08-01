@@ -25,6 +25,8 @@ class User extends Authenticatable
         'spotify_refresh_token',
         'spotify_token_expires_at',
         'spotify_profile_picture_url',
+        'spotify_app_client_id',
+        'spotify_app_client_secret',
     ];
 
     /**
@@ -36,6 +38,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'spotify_refresh_token',
+        'spotify_app_client_id',
+        'spotify_app_client_secret',
     ];
 
     /**
@@ -77,5 +81,21 @@ class User extends Authenticatable
     public function getSpotifyProfilePictureUrlAttribute(): ?string
     {
         return $this->attributes['spotify_profile_picture_url'];
+    }
+
+    /**
+     * Get the spotify_app_client_id attribute.
+     */
+    public function getSpotifyAppClientIdAttribute(): ?string
+    {
+        return $this->attributes['spotify_app_client_id'];
+    }
+
+    /**
+     * Get the spotify_app_client_secret attribute.
+     */
+    public function getSpotifyAppClientSecretAttribute(): ?string
+    {
+        return $this->attributes['spotify_app_client_secret'];
     }
 }

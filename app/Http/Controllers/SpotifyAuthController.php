@@ -11,16 +11,43 @@ use Illuminate\Support\Facades\Http;
 class SpotifyAuthController extends Controller
 {
     /**
+     * Helper to get the correct Spotify client ID and secret for the current user.
+     * Prioritizes user's own credentials, falls back to global .env credentials.
+     * @return array{clientId: string, clientSecret: string, redirectUri: string}
+     */
+    protected static function getClientCredentials(): array
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        // Use user's credentials if they have provided them
+        if ($user && $user->spotify_app_client_id && $user->spotify_app_client_secret) {
+            return [
+                'clientId' => $user->spotify_app_client_id,
+                'clientSecret' => $user->spotify_app_client_secret,
+                'redirectUri' => config('services.spotify.redirect_uri'), // Redirect URI is always global
+            ];
+        }
+
+        // Fallback to global .env credentials
+        return [
+            'clientId' => config('services.spotify.client_id'),
+            'clientSecret' => config('services.spotify.client_secret'),
+            'redirectUri' => config('services.spotify.redirect_uri'),
+        ];
+    }
+
+    /**
      * Redirect the user to Spotify's authorization page.
      */
     public function redirectToSpotify()
     {
-        $clientId = config('services.spotify.client_id');
+        $credentials = self::getClientCredentials();
         $redirectUri = config('services.spotify.redirect_uri');
         $scopes = 'user-read-private user-read-email playlist-modify-private playlist-modify-public';
 
         $url = 'https://accounts.spotify.com/authorize?' . http_build_query([
-            'client_id' => $clientId,
+            'client_id' => $credentials['clientId'],
             'response_type' => 'code',
             'redirect_uri' => $redirectUri,
             'scope' => $scopes,
@@ -42,8 +69,7 @@ class SpotifyAuthController extends Controller
         }
 
         $code = $request->input('code');
-        $clientId = config('services.spotify.client_id');
-        $clientSecret = config('services.spotify.client_secret');
+        $credentials = self::getClientCredentials();
         $redirectUri = config('services.spotify.redirect_uri');
 
         try {
@@ -51,8 +77,8 @@ class SpotifyAuthController extends Controller
                 'grant_type' => 'authorization_code',
                 'code' => $code,
                 'redirect_uri' => $redirectUri,
-                'client_id' => $clientId,
-                'client_secret' => $clientSecret,
+                'client_id' => $credentials['clientId'],
+                'client_secret' => $credentials['clientSecret'],
             ]);
 
             $response->throw();
@@ -110,15 +136,14 @@ class SpotifyAuthController extends Controller
             return false;
         }
 
-        $clientId = config('services.spotify.client_id');
-        $clientSecret = config('services.spotify.client_secret');
+        $credentials = self::getClientCredentials();
 
         try {
             $response = Http::asForm()->post('https://accounts.spotify.com/api/token', [
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $refreshToken,
-                'client_id' => $clientId,
-                'client_secret' => $clientSecret,
+                'client_id' => $credentials['clientId'],
+                'client_secret' => $credentials['clientSecret'],
             ]);
 
             $response->throw();

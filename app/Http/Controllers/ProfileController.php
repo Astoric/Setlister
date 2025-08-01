@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
 {
@@ -72,5 +73,44 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Update the user's Spotify App credentials.
+     */
+    public function updateSpotifyAppCredentials(Request $request): RedirectResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        try {
+            $validated = $request->validate([
+                'spotify_app_client_id' => ['nullable', 'string', 'max:255'],
+                'spotify_app_client_secret' => ['nullable', 'string', 'max:255'],
+            ]);
+
+            $user->fill($validated);
+
+            if ($user->isDirty('spotify_app_client_id') || $user->isDirty('spotify_app_client_secret')) {
+                $user->spotify_access_token = null;
+                $user->spotify_refresh_token = null;
+                $user->spotify_token_expires_at = null;
+                $user->save();
+                
+                session()->flash('success', 'Spotify App credentials updated! Please re-connect your Spotify account below.');
+            } else {
+                $user->save();
+                session()->flash('success', 'Spotify App credentials saved.');
+            }
+
+            return Redirect::route('profile.edit');
+        } catch (ValidationException $e) {
+            return Redirect::back()
+                           ->withErrors($e->errors(), 'updateSpotifyAppCredentials')
+                           ->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Error updating Spotify App credentials for user ' . $user->id . ': ' . $e->getMessage());
+            return Redirect::back()->withErrors(['message' => 'An unexpected error occurred while saving Spotify App credentials.'], 'updateSpotifyAppCredentials');
+        }
     }
 }

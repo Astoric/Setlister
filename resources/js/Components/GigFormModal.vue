@@ -31,7 +31,7 @@ const form = useForm({
 const confirmingGigDeletion = ref(false);
 
 /**
- * Watches changes in modal visibility and gig prop to initialize or reset the form.
+ * Watches changes in modal visibility and gig prop to initialize or reset the form.route
  */
 watch(
     () => [props.show, props.gig],
@@ -87,6 +87,16 @@ const modalTitle = computed(() => (props.gig ? "Edit Gig" : "Add New Gig"));
 const submitButtonText = computed(() =>
     props.gig ? "Save Changes" : "Add Gig"
 );
+
+const cancel = () => {
+    emit("close");
+    form.artist_band_name = "";
+    form.venue = "";
+    form.gig_date_time = "";
+    form.support_acts = [];
+    form.people_attending = [];
+    form.clearErrors();
+};
 
 /**
  * Handles form submission for both adding and editing gigs.
@@ -166,13 +176,13 @@ const deleteGig = () => {
 </script>
 
 <template>
-    <Modal :show="show" @close="emit('close')" :maxWidth="'2xl'">
+    <Modal :show="show" @close="cancel()" :maxWidth="'2xl'">
         <div class="relative rounded-lg bg-neutral-900 p-6 text-white">
             <h2 class="mb-6 text-2xl font-semibold">{{ modalTitle }}</h2>
 
             <!-- Close button -->
             <button
-                @click="emit('close')"
+                @click="cancel()"
                 class="absolute right-4 top-4 text-neutral-400 transition-colors hover:text-white">
                 <XMarkIcon class="h-6 w-6" />
             </button>
@@ -266,7 +276,7 @@ const deleteGig = () => {
                         <!-- Cancel Button -->
                         <button
                             type="button"
-                            @click="emit('close')"
+                            @click="cancel()"
                             class="rounded-lg bg-neutral-700 px-4 py-2 text-white transition-colors hover:bg-neutral-600">
                             Cancel
                         </button>

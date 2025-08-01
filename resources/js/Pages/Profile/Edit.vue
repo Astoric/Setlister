@@ -3,6 +3,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import DeleteUserForm from "./Partials/DeleteUserForm.vue";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm.vue";
 import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm.vue";
+import UpdateSpotifyAppCredentialsForm from "./Partials/UpdateSpotifyAppCredentialsForm.vue";
 import { Head, Link, usePage } from "@inertiajs/vue3";
 import { computed } from "vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
@@ -104,6 +105,10 @@ const spotifyExpiresAt = computed(() =>
                             </p>
                         </div>
                     </section>
+                </div>
+
+                <div class="p-4 sm:p-8 rounded-xl bg-neutral-800 shadow">
+                    <UpdateSpotifyAppCredentialsForm class="max-w-xl" />
                 </div>
 
                 <!-- Update Profile Information Form -->
