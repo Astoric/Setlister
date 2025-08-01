@@ -19,6 +19,7 @@ class GigController extends Controller
         $gigs = Auth::user()->gigs()
             ->where('gig_date_time', '>=', now())
             ->orderBy('gig_date_time')
+            ->with('setlist')
             ->get();
 
         $gigs->each(function ($gig) {
@@ -39,6 +40,7 @@ class GigController extends Controller
         $gigs = Auth::user()->gigs()
             ->where('gig_date_time', '<', now())
             ->orderByDesc('gig_date_time')
+            ->with('setlist')
             ->get();
 
         $gigs->each(function ($gig) {
@@ -77,6 +79,7 @@ class GigController extends Controller
             $gigs = Auth::user()->gigs()
                 ->where('gig_date_time', '>=', now())
                 ->orderBy('gig_date_time')
+                ->with('setlist')
                 ->get();
 
             $gigs->each(function ($gig) {
@@ -139,6 +142,8 @@ class GigController extends Controller
             });
 
             $updatedGig = $gig->fresh();
+
+            $gigs = $gigs->with('setlist')->get();
 
             if ($updatedGig->gig_date_time->isFuture()) {
                 return redirect()->route('dashboard');

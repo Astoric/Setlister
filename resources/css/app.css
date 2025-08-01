@@ -1,3 +1,111 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom CSS Variables (Design Tokens) from Figma/JSX */
+@layer base {
+  :root {
+    --background: 220 10% 8%; /* #121212 - Sidebar BG, Darkest BG */
+    --foreground: 220 10% 98%; /* #F5F5F5 - White-ish text */
+    --card: 220 10% 10%; /* #1A1A1A - Card BG */
+    --card-foreground: 220 10% 98%; /* White-ish text on cards */
+    --popover: 220 10% 10%; /* Popover BG */
+    --popover-foreground: 220 10% 98%; /* Popover text */
+
+    --primary: 150 60% 45%; /* A vibrant green for primary actions, like emerald-500 */
+    --primary-foreground: 220 10% 10%; /* Dark text on primary */
+
+    --secondary: 220 10% 18%; /* Slightly lighter dark grey for secondary actions/elements */
+    --secondary-foreground: 220 10% 98%; /* White-ish text on secondary */
+
+    --muted: 220 10% 25%; /* Muted backgrounds */
+    --muted-foreground: 220 10% 60%; /* Muted text */
+
+    --accent: 150 60% 45%; /* Accent color, using primary for now */
+    --accent-foreground: 220 10% 10%; /* Dark text on accent */
+
+    --destructive: 0 80% 50%; /* Red for destructive actions */
+    --destructive-foreground: 0 0% 100%; /* White text on destructive */
+
+    --border: 220 10% 30%; /* Grey border color */
+    --input: 220 10% 20%; /* Input background */
+    --ring: 150 60% 45%; /* Ring color for focus, accent color */
+
+    --radius: 0.5rem; /* Default border radius, matches rounded-md */
+
+    /* Custom Grays from App.jsx's text-gray-XXX */
+    --gray-300: 220 10% 80%; /* Bright gray */
+    --gray-400: 220 10% 70%; /* Muted gray */
+    --gray-500: 220 10% 60%; /* Darker muted gray */
+    --gray-600: 220 10% 40%; /* Very dark gray */
+    --gray-700: 220 10% 30%; /* Even darker gray */
+    --gray-800: 220 10% 20%; /* Almost black gray */
+
+    /* Specific hex for some elements from JSX */
+    --app-bg-191919: 220 10% 10%; /* Custom HSL for #191919 */
+    --app-bg-212121: 220 10% 12%; /* Custom HSL for #212121 */
+    --app-bg-121212: 220 10% 6%; /* Custom HSL for #121212 */
+
+    /* Gradients (These will be used directly as from-emerald-500 to-teal-600, etc.) */
+    --emerald-500: 150 60% 45%; /* #1ED760 */
+    --teal-600: 165 100% 25%; /* #008060 */
+  }
+
+  /* Base typography overrides */
+  h1 {
+    font-size: var(--font-size-3xl, 1.875rem); /* Default to Tailwind text-3xl if not overridden */
+    font-weight: var(--font-weight-semibold, 600);
+    line-height: 1.5;
+  }
+  h2 {
+    font-size: var(--font-size-2xl, 1.5rem);
+    font-weight: var(--font-weight-semibold, 600);
+    line-height: 1.5;
+  }
+  h3 {
+    font-size: var(--font-size-xl, 1.25rem);
+    font-weight: var(--font-weight-semibold, 600);
+    line-height: 1.5;
+  }
+  h4 {
+    font-size: var(--font-size-lg, 1.125rem);
+    font-weight: var(--font-weight-medium, 500);
+    line-height: 1.5;
+  }
+  p {
+    font-size: var(--font-size-base, 1rem);
+    font-weight: var(--font-weight-normal, 400);
+    line-height: 1.5;
+  }
+  label {
+    font-size: var(--font-size-sm, 0.875rem);
+    font-weight: var(--font-weight-medium, 500);
+    line-height: 1.5;
+  }
+  button {
+    font-size: var(--font-size-base, 1rem);
+    font-weight: var(--font-weight-medium, 500);
+    line-height: 1.5;
+  }
+  input {
+    font-size: var(--font-size-base, 1rem);
+    font-weight: var(--font-weight-normal, 400);
+    line-height: 1.5;
+  }
+}
+
+/* Custom HSL conversions for hex values from your JSX */
+/* You might see direct hex values like #191919, #212121, #121212 in JSX. */
+/* We define these as custom properties and map them in tailwind.config.js for reusability. */
+/* Using HSL values for consistency with Radix/Shadcn approach. */
+/* These specific HSL values convert to the hex codes: */
+@layer utilities {
+  .bg-\[\#191919\] { background-color: hsl(var(--app-bg-191919)); }
+  .bg-\[\#212121\] { background-color: hsl(var(--app-bg-212121)); }
+  .bg-\[\#121212\] { background-color: hsl(var(--app-bg-121212)); }
+  .border-gray-600 { border-color: hsl(var(--gray-600)); } /* Custom mapping for gray-600 from JSX */
+  .text-gray-300 { color: hsl(var(--gray-300)); }
+  .text-gray-400 { color: hsl(var(--gray-400)); }
+  .text-gray-500 { color: hsl(var(--gray-500)); }
+  .text-emerald-400 { color: hsl(var(--emerald-400, 150 60% 50%)); } /* Fallback for missing emerald-400 */
+}

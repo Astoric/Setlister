@@ -1,14 +1,35 @@
 <script setup>
-import { computed, ref, watch } from "vue";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import {
-    ArrowLeftIcon,
-    MusicalNoteIcon,
-    TrashIcon,
-} from "@heroicons/vue/24/outline";
+import { computed, ref, watch, h } from "vue";
 import { Head, Link, router, usePage } from "@inertiajs/vue3";
-import Modal from "@/Components/Modal.vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+
+import Button from "@/Components/ui/Button.vue";
+import Avatar from "@/Components/ui/Avatar.vue";
+import AvatarImage from "@/Components/ui/AvatarImage.vue";
+import AvatarFallback from "@/Components/ui/AvatarFallback.vue";
+import Card from "@/Components/ui/Card.vue";
+import CardContent from "@/Components/ui/CardContent.vue";
+import CardHeader from "@/Components/ui/CardHeader.vue";
+import CardTitle from "@/Components/ui/CardTitle.vue";
+import Dialog from "@/Components/ui/Dialog.vue";
+import DialogContent from "@/Components/ui/DialogContent.vue";
+import DialogHeader from "@/Components/ui/DialogHeader.vue";
+import DialogTitle from "@/Components/ui/DialogTitle.vue";
+import DialogDescription from "@/Components/ui/DialogDescription.vue";
+
+import {
+    ArrowLeft,
+    Calendar,
+    Clock,
+    Download,
+    Heart,
+    MapPin,
+    Music,
+    Play,
+    Share2,
+    Trash2,
+    Check,
+} from "lucide-vue-next";
 
 const props = defineProps({
     setlist: {
@@ -24,9 +45,6 @@ const playlistGenerated = ref(false);
 
 const confirmingSetlistDeletion = ref(false);
 
-/**
- * Watches flashSuccess to set playlistGenerated to true.
- */
 watch(
     flashSuccess,
     (newValue) => {
@@ -37,38 +55,21 @@ watch(
     { immediate: true }
 );
 
-/**
- * Formats the gig date.
- */
 const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
-
     return new Date(dateString).toLocaleString("en-US", options);
 };
 
-/**
- * Computes all songs from all sets for display.
- */
-const allSongs = computed(() => {
-    let songs = [];
-    if (
-        props.setlist &&
-        props.setlist.sets &&
-        Array.isArray(props.setlist.sets)
-    ) {
-        props.setlist.sets.forEach((set) => {
-            if (set.songs && Array.isArray(set.songs)) {
-                songs = songs.concat(set.songs);
-            }
-        });
-    }
+// NEW: Helper to format duration in milliseconds to MM:SS or HH:MM:SS.
+const formatDuration = (ms) => {
+    if (ms === null || isNaN(ms)) return "N/A";
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
 
-    return songs;
-});
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+};
 
-/**
- * Handles generating a Spotify playlist.
- */
 const generatePlaylist = () => {
     isGenerating.value = true;
     playlistGenerated.value = false;
@@ -94,24 +95,74 @@ const generatePlaylist = () => {
     });
 };
 
-/**
- * Handles confirm state of delete request.
- */
+const getAvatarFallback = (name) => {
+    return name
+        ? name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .substring(0, 2)
+              .toUpperCase()
+        : "??";
+};
+
 const confirmSetlistDeletion = () => {
     confirmingSetlistDeletion.value = true;
 };
 
-/**
- * Handles deletion of setlist.
- */
 const deleteSetlist = () => {
     router.delete(route("setlists.destroy", props.setlist.id), {
-        onSuccess: () => {},
-        onError: () => {},
+        onSuccess: () => {
+            // Inertia::location handles redirect to saved-setlists
+        },
+        onError: () => {
+            // Error handling for deletion
+        },
         onFinish: () => {
             confirmingSetlistDeletion.value = false;
         },
     });
+};
+
+// NEW: Computed property to get all songs in order with a global index
+const allSongsWithGlobalIndex = computed(() => {
+    let globalIndex = 0;
+    const songs = [];
+    if (props.setlist && Array.isArray(props.setlist.sets)) {
+        props.setlist.sets.forEach((setObj) => {
+            if (setObj.songs && Array.isArray(setObj.songs)) {
+                setObj.songs.forEach((song) => {
+                    songs.push({
+                        ...song,
+                        globalIndex: globalIndex + 1, // Start from 1
+                    });
+                    globalIndex++;
+                });
+            }
+        });
+    }
+    return songs;
+});
+
+// NEW: Helper to find a song by its name to use with the global index logic below
+const findSongByReference = (setIndex, songIndexInSet) => {
+    let currentGlobalIndex = 0;
+    for (let sIdx = 0; sIdx < props.setlist.sets.length; sIdx++) {
+        const currentSet = props.setlist.sets[sIdx];
+        if (currentSet.songs && Array.isArray(currentSet.songs)) {
+            for (
+                let songIdx = 0;
+                songIdx < currentSet.songs.length;
+                songIdx++
+            ) {
+                if (sIdx === setIndex && songIdx === songIndexInSet) {
+                    return currentGlobalIndex + 1; // Found the specific song's global index
+                }
+                currentGlobalIndex++;
+            }
+        }
+    }
+    return -1; // Not found
 };
 </script>
 
@@ -120,157 +171,239 @@ const deleteSetlist = () => {
 
     <AuthenticatedLayout>
         <div class="py-6">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <!-- Success message display -->
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <!-- Flash Messages -->
                 <div
                     v-if="flashSuccess"
                     class="mb-4 rounded-lg bg-accent-500 px-4 py-3 shadow-md text-neutral-900"
                     v-html="flashSuccess"></div>
-                <!-- Error message display -->
                 <div
                     v-if="flashError"
                     class="mb-4 rounded-lg bg-red-500 px-4 py-3 shadow-md text-white">
                     {{ flashError }}
                 </div>
-                <!-- Back Button & Header -->
-                <div class="mb-6 flex items-center justify-between">
-                    <Link
-                        :href="route('saved-setlists')"
-                        class="flex items-center text-neutral-400 transition-colors hover:text-white">
-                        <ArrowLeftIcon class="mr-2 h-5 w-5" />
-                        Back to Saved Setlists
-                    </Link>
-                    <h2
-                        class="ml-4 flex-grow text-center text-xl font-semibold leading-tight text-white">
-                        {{ setlist.artist_name }} Setlist
-                    </h2>
-                    <div class="flex items-center space-x-2 ml-auto">
-                        <!-- NDelete Setlist Button -->
-                        <PrimaryButton
-                            @click="confirmSetlistDeletion"
-                            class="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg"
-                            title="Delete Setlist">
-                            <TrashIcon class="h-5 w-5" />
-                        </PrimaryButton>
 
-                        <!-- Generate Spotify Playlist Button -->
-                        <PrimaryButton
-                            @click="generatePlaylist()"
-                            :disabled="isGenerating || playlistGenerated"
-                            :class="{
-                                'opacity-75 cursor-not-allowed':
-                                    isGenerating || playlistGenerated,
-                            }">
-                            <span v-if="isGenerating">
-                                Generating playlist...
-                            </span>
-                            <span v-else-if="playlistGenerated">Done!</span>
-                            <span v-else>Generate Spotify Playlist</span>
-                        </PrimaryButton>
+                <!-- Setlist Header -->
+                <div class="border-b border-gray-700 p-6">
+                    <div class="mb-6 flex items-center justify-between">
+                        <Button
+                            variant="ghost"
+                            as-child
+                            class="gap-2 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white">
+                            <Link
+                                :href="route('saved-setlists')"
+                                class="flex items-center gap-2">
+                                <ArrowLeft class="h-4 w-4" />
+                                Back to Saved Setlists
+                            </Link>
+                        </Button>
+
+                        <div class="flex items-center gap-3">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                class="text-gray-400 hover:bg-gray-700 hover:text-white transition-all duration-200">
+                                <Heart class="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                class="text-gray-400 hover:bg-gray-700 hover:text-white transition-all duration-200">
+                                <Share2 class="h-4 w-4" />
+                            </Button>
+                            <!-- Delete Setlist Button -->
+                            <Button
+                                @click="confirmSetlistDeletion"
+                                class="bg-red-600 hover:bg-red-700 p-2 text-white transition-all duration-200 rounded-lg"
+                                title="Delete Setlist">
+                                <Trash2 class="h-5 w-5" />
+                            </Button>
+                            <Button
+                                @click="generatePlaylist()"
+                                class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200"
+                                :disabled="isGenerating || playlistGenerated"
+                                :class="{
+                                    'opacity-75 cursor-not-allowed':
+                                        isGenerating || playlistGenerated,
+                                }">
+                                <Download
+                                    v-if="isGenerating || !playlistGenerated"
+                                    class="mr-2 h-4 w-4" />
+                                <Check v-else class="mr-2 h-4 w-4" />
+                                <span v-if="isGenerating">
+                                    Generating playlist...
+                                </span>
+                                <span v-else-if="playlistGenerated">Done!</span>
+                                <span v-else>Generate Spotify Playlist</span>
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-6">
+                        <Avatar class="h-20 w-20 ring-2 ring-emerald-500/30">
+                            <AvatarImage
+                                v-if="setlist.gig?.artist_image_url"
+                                :src="setlist.gig.artist_image_url"
+                                :alt="setlist.gig.artist_name" />
+                            <AvatarFallback
+                                v-else
+                                class="bg-gradient-to-r from-gray-700 to-gray-600 text-2xl text-white">
+                                {{ getAvatarFallback(setlist.artist_name) }}
+                            </AvatarFallback>
+                        </Avatar>
+
+                        <div>
+                            <h1
+                                class="mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-4xl font-bold text-transparent">
+                                {{ setlist.artist_name }}
+                            </h1>
+                            <div
+                                class="mb-3 flex items-center gap-4 text-gray-400">
+                                <div class="flex items-center gap-2">
+                                    <MapPin class="h-4 w-4" />
+                                    <span>{{ setlist.venue_name }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <Calendar class="h-4 w-4" />
+                                    <span>
+                                        {{ formatDate(setlist.gig_date) }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <Clock class="h-4 w-4" />
+                                    <span>
+                                        {{ setlist.total_duration_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Setlist Details Card -->
-                <div
-                    class="overflow-hidden rounded-lg bg-neutral-800 p-6 shadow-sm">
-                    <!-- Artist Name -->
-                    <h3 class="mb-2 text-3xl font-bold text-white">
-                        {{ setlist.artist_name }}
-                    </h3>
-                    <!-- Venue & Date -->
-                    <p class="mb-4 text-lg text-neutral-300">
-                        at {{ setlist.venue_name }} on
-                        {{ formatDate(setlist.gig_date) }}
-                    </p>
-
-                    <!-- Sets & Songs List -->
-                    <div
-                        v-if="setlist.sets && setlist.sets.length > 0"
-                        class="space-y-6">
-                        <div
-                            v-for="(setObj, setIndex) in setlist.sets"
-                            :key="setIndex"
-                            class="border-t border-neutral-700 pt-4 first:border-t-0 first:pt-0">
-                            <!-- Set Name -->
-                            <h4
-                                class="mb-3 text-xl font-semibold text-accent-500">
-                                {{ setObj.name || "Main Set" }}
-                            </h4>
-                            <!-- Songs List -->
-                            <ol
-                                class="list-inside list-decimal space-y-1 text-neutral-300">
-                                <li
-                                    v-for="(song, songIndex) in setObj.songs"
-                                    :key="`${setIndex}-${songIndex}`"
-                                    class="flex items-start">
-                                    <span class="mr-2">
-                                        {{ songIndex + 1 }}.
-                                    </span>
-                                    <MusicalNoteIcon
-                                        class="mr-2 mt-1 h-4 w-4 flex-shrink-0 text-neutral-400" />
-                                    <span class="flex-grow">
-                                        {{ song.name }}
-                                    </span>
-                                </li>
-                            </ol>
+                <!-- Setlist Content -->
+                <div class="p-6">
+                    <div class="max-w-4xl">
+                        <!-- Main Set -->
+                        <div class="mb-8">
+                            <h2
+                                class="mb-6 text-2xl font-semibold text-emerald-400">
+                                Main Set
+                            </h2>
+                            <Card class="bg-[#191919] border-gray-600">
+                                <CardContent class="p-0">
+                                    <div
+                                        v-for="(
+                                            setObj, setIndex
+                                        ) in setlist.sets"
+                                        :key="setIndex">
+                                        <div
+                                            v-if="
+                                                setObj.name &&
+                                                setObj.name !== 'Main Set'
+                                            "
+                                            class="px-4 py-2 text-sm font-semibold text-gray-400 border-b border-gray-700 bg-[#212121]">
+                                            {{ setObj.name }}
+                                        </div>
+                                        <div
+                                            v-for="(
+                                                song, songIndex
+                                            ) in setObj.songs"
+                                            :key="`${setIndex}-${songIndex}`"
+                                            class="group flex items-center gap-4 p-4 transition-colors hover:bg-gray-800/50"
+                                            :class="{
+                                                'border-b border-gray-700':
+                                                    setIndex <
+                                                        setlist.sets.length -
+                                                            1 ||
+                                                    songIndex <
+                                                        setObj.songs.length - 1,
+                                            }">
+                                            <div
+                                                class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-semibold text-emerald-400">
+                                                <!-- MODIFIED: Use calculated global index -->
+                                                {{
+                                                    findSongByReference(
+                                                        setIndex,
+                                                        songIndex
+                                                    )
+                                                }}
+                                            </div>
+                                            <div class="flex-1">
+                                                <p
+                                                    class="text-white transition-colors group-hover:text-emerald-400">
+                                                    {{ song.name }}
+                                                </p>
+                                            </div>
+                                            <!-- Song Duration (from spotify_track_details on generation) -->
+                                            <div
+                                                class="text-sm text-gray-500 transition-colors group-hover:text-gray-400">
+                                                {{
+                                                    formatDuration(
+                                                        song.duration_ms
+                                                    )
+                                                }}
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                class="opacity-0 text-gray-400 transition-opacity group-hover:opacity-100 hover:text-white">
+                                                <Play class="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
-                    </div>
-                    <!-- No Set Information -->
-                    <p v-else class="py-8 text-center text-neutral-400">
-                        No set information available for this gig.
-                    </p>
 
-                    <!-- Setlist.fm Link -->
-                    <div v-if="setlist.setlist_url" class="mt-6 text-right">
-                        <a
-                            :href="setlist.setlist_url"
-                            target="_blank"
-                            class="flex items-center justify-end text-sm text-accent-500 hover:underline">
-                            View original on Setlist.fm
-                            <svg
-                                class="ml-1 h-4 w-4"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path>
-                                <path
-                                    d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path>
-                            </svg>
-                        </a>
+                        <!-- Original Setlist.fm Link -->
+                        <div
+                            v-if="setlist.setlist_url"
+                            class="mt-8 text-right text-sm text-gray-400">
+                            <a
+                                :href="setlist.setlist_url"
+                                target="_blank"
+                                class="hover:underline">
+                                View original on Setlist.fm
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </AuthenticatedLayout>
 
-    <Modal
-        :show="confirmingSetlistDeletion"
-        @close="confirmingSetlistDeletion = false"
-        :maxWidth="'sm'">
-        <div class="p-6 bg-neutral-900 text-white rounded-lg">
-            <h3 class="text-lg font-medium text-white mb-4">
-                Are you sure you want to delete this setlist?
-            </h3>
-            <p class="text-sm text-neutral-400 mb-6">
-                This action cannot be undone. This setlist will be permanently
-                removed.
-            </p>
-            <div class="flex justify-end space-x-3">
-                <button
-                    type="button"
+    <!-- Delete Confirmation Modal -->
+    <Dialog
+        :open="confirmingSetlistDeletion"
+        @update:open="confirmingSetlistDeletion = $event"
+        :max-width="'sm'"
+        v-if="confirmingSetlistDeletion">
+        <DialogContent class="bg-[#191919] border-gray-700 text-white max-w-sm">
+            <DialogHeader>
+                <DialogTitle class="text-white">
+                    Are you sure you want to delete this setlist?
+                </DialogTitle>
+                <DialogDescription class="text-gray-400">
+                    This action cannot be undone. This setlist will be
+                    permanently removed.
+                </DialogDescription>
+            </DialogHeader>
+            <div class="flex justify-end gap-3">
+                <Button
+                    variant="ghost"
                     @click="confirmingSetlistDeletion = false"
-                    class="rounded-lg bg-neutral-700 px-4 py-2 text-white transition-colors hover:bg-neutral-600">
+                    class="text-gray-400 hover:bg-gray-700 hover:text-white transition-all duration-200">
                     Cancel
-                </button>
-                <PrimaryButton
+                </Button>
+                <Button
                     @click="deleteSetlist"
-                    :class="{ 'opacity-25': isGenerating }"
+                    :class="{ 'opacity-75 cursor-not-allowed': isGenerating }"
                     :disabled="isGenerating"
-                    class="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">
+                    variant="destructive"
+                    class="bg-red-600 hover:bg-red-700 text-white transition-all duration-200">
                     Delete
-                </PrimaryButton>
+                </Button>
             </div>
-        </div>
-    </Modal>
+        </DialogContent>
+    </Dialog>
 </template>

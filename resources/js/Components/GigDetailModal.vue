@@ -1,14 +1,29 @@
 <script setup>
-import Modal from "@/Components/Modal.vue";
-import { XMarkIcon } from "@heroicons/vue/24/outline";
+import { computed } from "vue";
+import { Head, usePage } from "@inertiajs/vue3";
+// Fix: Import all Lucide icons explicitly that are used in the template
+import { X, MapPin, Calendar, Clock, Music, Users } from "lucide-vue-next";
+// Fix: Import all Dialog sub-components explicitly that are used in the template
+import Dialog from "@/Components/ui/Dialog.vue";
+import DialogContent from "@/Components/ui/DialogContent.vue";
+import DialogHeader from "@/Components/ui/DialogHeader.vue";
+import DialogTitle from "@/Components/ui/DialogTitle.vue";
+import DialogDescription from "@/Components/ui/DialogDescription.vue";
+import DialogClose from "@/Components/ui/DialogClose.vue"; // If used directly in template
+import DialogPortal from "@/Components/ui/DialogPortal.vue";
+// No need for DialogClose, DialogPortal here, they are internal to DialogContent
+
+// Import other UI components used
+import Avatar from "@/Components/ui/Avatar.vue";
+import AvatarImage from "@/Components/ui/AvatarImage.vue";
+import AvatarFallback from "@/Components/ui/AvatarFallback.vue";
+import Badge from "@/Components/ui/Badge.vue";
+import Card from "@/Components/ui/Card.vue";
+import CardContent from "@/Components/ui/CardContent.vue";
 
 const props = defineProps({
-    show: {
-        type: Boolean,
-    },
-    gig: {
-        type: Object,
-    },
+    show: { type: Boolean }, // Controls modal visibility
+    gig: { type: Object }, // The gig object to display details for
 });
 
 const emit = defineEmits(["close"]);
@@ -17,10 +32,7 @@ const emit = defineEmits(["close"]);
  * Formats date and time for display.
  */
 const formatDateTime = (dateTimeString) => {
-    if (!dateTimeString) {
-        return "N/A";
-    }
-
+    if (!dateTimeString) return "N/A";
     const options = {
         year: "numeric",
         month: "long",
@@ -28,100 +40,132 @@ const formatDateTime = (dateTimeString) => {
         hour: "2-digit",
         minute: "2-digit",
     };
-
     return new Date(dateTimeString).toLocaleString("en-US", options);
+};
+
+/**
+ * Gets avatar fallback initials.
+ */
+const getAvatarFallback = (name) => {
+    return name
+        ? name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .substring(0, 2)
+              .toUpperCase()
+        : "??";
 };
 </script>
 
 <template>
-    <Modal :show="show" @close="emit('close')" :maxWidth="'lg'">
-        <div class="relative rounded-lg bg-neutral-900 p-6 text-white">
-            <h2 class="mb-4 text-center text-2xl font-bold">Gig Details</h2>
-
-            <!-- Close button -->
-            <button
-                @click="emit('close')"
-                class="absolute right-4 top-4 text-neutral-400 transition-colors hover:text-white">
-                <XMarkIcon class="h-6 w-6" />
-            </button>
-
-            <div v-if="gig" class="space-y-4">
-                <!-- Artist Name (Headline) -->
-                <div class="mb-6 text-center">
-                    <h3
-                        class="text-4xl font-extrabold leading-tight text-accent-500">
-                        {{ gig.artist_band_name }}
-                    </h3>
+    <!-- FIX: Add v-if="show" to the root Dialog component -->
+    <Dialog
+        :open="show"
+        @update:open="emit('close')"
+        :max-width="'lg'"
+        v-if="show">
+        <DialogContent class="bg-[#191919] border-gray-600 text-white">
+            <DialogHeader>
+                <div class="mb-4 flex justify-center">
+                    <Avatar class="h-24 w-24 ring-2 ring-emerald-500/30">
+                        <AvatarImage
+                            :src="
+                                gig.artist_image_url ||
+                                '/images/no-artist-image.png'
+                            "
+                            :alt="gig.artist_band_name" />
+                        <AvatarFallback
+                            class="bg-gradient-to-r from-gray-700 to-gray-600 text-3xl text-white">
+                            {{ getAvatarFallback(gig.artist_band_name) }}
+                        </AvatarFallback>
+                    </Avatar>
                 </div>
+                <DialogTitle
+                    class="text-center text-4xl font-extrabold leading-tight text-white">
+                    {{ gig.artist_band_name }}
+                </DialogTitle>
+                <DialogDescription class="text-center text-gray-400">
+                    Detailed information about this gig.
+                </DialogDescription>
+            </DialogHeader>
 
-                <!-- Spotify Artist Image -->
-                <div class="mb-6 flex justify-center">
-                    <img
-                        v-if="gig.artist_image_url"
-                        :src="gig.artist_image_url"
-                        alt="Artist Image"
-                        class="h-32 w-32 rounded-full object-cover shadow-lg ring-2 ring-accent-500" />
-                    <div
-                        v-else
-                        class="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-neutral-800 text-sm text-neutral-500">
-                        No Image
+            <div v-if="gig" class="space-y-4 border-t border-gray-700 pt-4">
+                <!-- Venue & Date/Time Block -->
+                <div
+                    class="flex flex-col justify-around gap-4 text-center text-gray-400 sm:flex-row">
+                    <div class="flex items-center justify-center gap-2">
+                        <MapPin class="h-4 w-4" />
+                        <span>{{ gig.venue }}</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <Calendar class="h-4 w-4" />
+                        <span>{{ formatDateTime(gig.gig_date_time) }}</span>
                     </div>
                 </div>
 
                 <!-- Support Acts -->
-                <div class="rounded-lg bg-neutral-800 p-4">
-                    <p class="mb-1 text-sm text-neutral-400">Support:</p>
-                    <p
-                        v-if="
-                            Array.isArray(gig.support_acts) &&
-                            gig.support_acts.length
-                        "
-                        class="font-medium text-white">
-                        {{ gig.support_acts.join(", ") }}
-                    </p>
-                    <p v-else class="text-sm text-neutral-500">
-                        No support acts listed.
-                    </p>
-                </div>
-
-                <!-- Venue -->
-                <div class="rounded-lg bg-neutral-800 p-4">
-                    <p class="mb-1 text-sm text-neutral-400">Venue:</p>
-                    <p class="font-medium text-white">{{ gig.venue }}</p>
-                </div>
-
-                <!-- Date & Time -->
-                <div class="rounded-lg bg-neutral-800 p-4">
-                    <p class="mb-1 text-sm text-neutral-400">Date & Time:</p>
-                    <p class="font-medium text-white">
-                        {{ formatDateTime(gig.gig_date_time) }}
-                    </p>
-                </div>
+                <Card class="bg-[#191919] border-gray-600">
+                    <CardContent class="p-4">
+                        <p
+                            class="mb-2 flex items-center gap-2 text-sm text-gray-400">
+                            <Music class="h-4 w-4" />
+                            Support Acts:
+                        </p>
+                        <span
+                            v-if="
+                                (Array.isArray(gig.support_acts)
+                                    ? gig.support_acts
+                                    : []
+                                ).length > 0
+                            "
+                            class="font-medium text-white">
+                            {{
+                                (Array.isArray(gig.support_acts)
+                                    ? gig.support_acts
+                                    : []
+                                ).join(", ")
+                            }}
+                        </span>
+                        <span v-else class="text-sm text-gray-500">
+                            No support acts listed.
+                        </span>
+                    </CardContent>
+                </Card>
 
                 <!-- People Attending -->
-                <div class="rounded-lg bg-neutral-800 p-4">
-                    <p class="mb-1 text-sm text-neutral-400">Going:</p>
-                    <div
-                        v-if="
-                            Array.isArray(gig.people_attending) &&
-                            gig.people_attending.length
-                        "
-                        class="flex flex-wrap gap-2">
-                        <span
-                            v-for="person in gig.people_attending"
-                            :key="person"
-                            class="rounded-full bg-accent-500 px-3 py-1 text-xs font-medium text-neutral-900 shadow">
-                            {{ person }}
+                <Card class="bg-[#191919] border-gray-600">
+                    <CardContent class="p-4">
+                        <p
+                            class="mb-2 flex items-center gap-2 text-sm text-gray-400">
+                            <Users class="h-4 w-4" />
+                            Going:
+                        </p>
+                        <div
+                            v-if="
+                                (Array.isArray(gig.people_attending)
+                                    ? gig.people_attending
+                                    : []
+                                ).length > 0
+                            "
+                            class="flex flex-wrap gap-2">
+                            <Badge
+                                v-for="person in gig.people_attending"
+                                :key="person"
+                                variant="secondary"
+                                class="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+                                {{ person }}
+                            </Badge>
+                        </div>
+                        <span v-else class="text-sm text-gray-500">
+                            No one else is going (yet!).
                         </span>
-                    </div>
-                    <p v-else class="text-sm text-neutral-500">
-                        No one else is going (yet!).
-                    </p>
-                </div>
+                    </CardContent>
+                </Card>
             </div>
             <div v-else class="py-8 text-center text-neutral-500">
                 Loading gig details...
             </div>
-        </div>
-    </Modal>
+        </DialogContent>
+    </Dialog>
 </template>

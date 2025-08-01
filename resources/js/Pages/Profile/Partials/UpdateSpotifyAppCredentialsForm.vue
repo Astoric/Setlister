@@ -1,12 +1,16 @@
 <script setup>
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import TextInput from "@/Components/TextInput.vue";
-import { useForm, usePage, Link } from "@inertiajs/vue3"; // NEW: Import Link for external link
+import Button from "@/Components/ui/Button.vue"; // Using our new Button
+import Input from "@/Components/ui/Input.vue"; // Using our new Input
+import Label from "@/Components/ui/Label.vue"; // Using our new Label
+import { useForm, usePage } from "@inertiajs/vue3";
 import { computed } from "vue";
 
-const user = usePage().props.auth.user;
+// Lucide Icons (as used in App.jsx)
+import { Check, ExternalLink, Music } from "lucide-vue-next"; // Add Music and Check icons
+
+const user = usePage().props.auth.user; // Get user from page props
 
 const form = useForm({
     spotify_app_client_id: user.spotify_app_client_id || "",
@@ -20,7 +24,7 @@ const updateSpotifyAppCredentials = () => {
     form.patch(route("profile.update-spotify-app-credentials"), {
         preserveScroll: true,
         onSuccess: () => {
-            // Optional: Show success message or clear form recentlySuccessful state
+            // Success handled by parent (Profile/Edit.vue) via flash message
         },
         onError: () => {
             // Errors will be displayed by InputError components
@@ -34,88 +38,154 @@ const updateSpotifyAppCredentials = () => {
 const hasAppCredentials = computed(
     () => !!user.spotify_app_client_id && !!user.spotify_app_client_secret
 );
+
+/**
+ * Checks if Spotify account is connected (via access token).
+ */
+const isSpotifyAccountConnected = computed(() => !!user.spotify_access_token);
+
+/**
+ * Formats Spotify token expiration date for display.
+ */
+const spotifyTokenExpiresAtDisplay = computed(() =>
+    user.spotify_token_expires_at
+        ? new Date(user.spotify_token_expires_at).toLocaleString()
+        : "N/A"
+);
 </script>
 
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-white">
-                Spotify App Credentials
-            </h2>
-            <p class="mt-1 text-sm text-neutral-400">
-                To use this app, please create an app on the
-                <a
-                    href="https://developer.spotify.com/dashboard/applications"
-                    target="_blank"
-                    class="font-semibold underline text-accent-500 hover:text-accent-400">
-                    Spotify Developer Dashboard
-                </a>
-                . Ensure the callback URL is set to
-                <span
-                    class="font-mono text-xs text-neutral-300 bg-neutral-700 px-1 py-0.5 rounded">
-                    https://setlister.co.uk/auth/spotify/callback
-                </span>
-                and Web API is checked. After creation, please input your Client
-                ID and Client Secret.
+            <h3 class="text-xl font-semibold text-white mb-2">
+                Spotify Connection
+            </h3>
+            <p class="mt-1 text-sm text-gray-400">
+                Connect your Spotify account to generate playlists.
             </p>
         </header>
 
-        <form
-            @submit.prevent="updateSpotifyAppCredentials"
-            class="mt-6 space-y-6">
-            <div>
-                <InputLabel
-                    for="spotify_app_client_id"
-                    value="Spotify App Client ID"
-                    class="text-neutral-400" />
-                <TextInput
-                    id="spotify_app_client_id"
-                    type="text"
-                    class="mt-1 block w-full bg-neutral-700 text-white border-neutral-600 focus:border-accent-500 focus:ring-accent-500"
-                    v-model="form.spotify_app_client_id"
-                    autocomplete="off" />
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.spotify_app_client_id" />
-            </div>
+        <Card class="bg-[#191919] border-gray-600">
+            <!-- Using Card component for this section -->
+            <CardContent class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                            <Music class="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p class="text-white font-medium">Spotify</p>
+                            <div class="flex items-center gap-2">
+                                <template v-if="isSpotifyAccountConnected">
+                                    <Check class="w-4 h-4 text-green-400" />
+                                    <span class="text-green-400 text-sm">
+                                        Connected
+                                    </span>
+                                </template>
+                                <template v-else>
+                                    <span class="text-gray-400 text-sm">
+                                        Not connected
+                                    </span>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
 
-            <div>
-                <InputLabel
-                    for="spotify_app_client_secret"
-                    value="Spotify App Client Secret"
-                    class="text-neutral-400" />
-                <TextInput
-                    id="spotify_app_client_secret"
-                    type="text"
-                    class="mt-1 block w-full bg-neutral-700 text-white border-neutral-600 focus:border-accent-500 focus:ring-accent-500"
-                    v-model="form.spotify_app_client_secret"
-                    autocomplete="off" />
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.spotify_app_client_secret" />
-            </div>
+                    <Button
+                        v-if="isSpotifyAccountConnected"
+                        as="a"
+                        :href="route('spotify.redirect')"
+                        variant="outline"
+                        class="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-200">
+                        Disconnect
+                        <!-- In App.jsx this was disconnect, but here it's "Re-Connect" -->
+                        <!-- If "Disconnect" logic is added later, this button would trigger it -->
+                        Re-Connect
+                    </Button>
+                    <Button
+                        v-else
+                        as="a"
+                        :href="route('spotify.redirect')"
+                        class="bg-green-500 hover:bg-green-600 transition-all duration-200">
+                        <ExternalLink class="w-4 h-4 mr-2" />
+                        Connect Account
+                    </Button>
+                </div>
 
-            <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">
-                    {{
-                        hasAppCredentials
-                            ? "Update Credentials"
-                            : "Save Credentials"
-                    }}
-                </PrimaryButton>
-
-                <Transition
-                    enter-active-class="transition ease-in-out"
-                    enter-from-class="opacity-0"
-                    leave-active-class="transition ease-in-out"
-                    leave-to-class="opacity-0">
-                    <p
-                        v-if="form.recentlySuccessful"
-                        class="text-sm text-neutral-500">
-                        Saved.
+                <div
+                    v-if="isSpotifyAccountConnected"
+                    class="pt-4 border-t border-gray-700">
+                    <p class="text-sm text-gray-400 mb-4">
+                        Last updated: {{ spotifyTokenExpiresAtDisplay }}
                     </p>
-                </Transition>
-            </div>
-        </form>
+
+                    <!-- Original Spotify App Credentials fields -->
+                    <p class="mt-1 text-sm text-neutral-400 mb-4">
+                        To use this app, please create an app on the
+                        <a
+                            href="https://developer.spotify.com/dashboard/applications"
+                            target="_blank"
+                            class="font-semibold underline text-emerald-400 hover:text-emerald-300">
+                            Spotify Developer Dashboard
+                        </a>
+                        . Ensure the callback URL is set to
+                        <span
+                            class="font-mono text-xs rounded bg-neutral-700 px-1 py-0.5 text-neutral-300">
+                            https://setlister.co.uk/auth/spotify/callback
+                        </span>
+                        and Web API is checked. After creation, please input
+                        your Client ID and Client Secret.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div>
+                            <Label for="spotify-client-id">
+                                Spotify App Client ID
+                            </Label>
+                            <Input
+                                id="spotify-client-id"
+                                type="text"
+                                class="mt-1 block w-full bg-[#212121] border-gray-600 text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                                v-model="form.spotify_app_client_id"
+                                autocomplete="off" />
+                            <InputError
+                                class="mt-2"
+                                :message="form.errors.spotify_app_client_id" />
+                        </div>
+
+                        <div>
+                            <Label for="spotify-client-secret">
+                                Spotify App Client Secret
+                            </Label>
+                            <Input
+                                id="spotify-client-secret"
+                                type="password"
+                                class="mt-1 block w-full bg-[#212121] border-gray-600 text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                                v-model="form.spotify_app_client_secret"
+                                autocomplete="off" />
+                            <InputError
+                                class="mt-2"
+                                :message="
+                                    form.errors.spotify_app_client_secret
+                                " />
+                        </div>
+
+                        <Button
+                            @click.prevent="updateSpotifyAppCredentials"
+                            class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 transition-all duration-200">
+                            <Check
+                                v-if="form.recentlySuccessful"
+                                class="mr-2 h-4 w-4" />
+                            {{
+                                hasAppCredentials
+                                    ? "Update Credentials"
+                                    : "Save Credentials"
+                            }}
+                        </Button>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     </section>
 </template>

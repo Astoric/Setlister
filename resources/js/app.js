@@ -6,6 +6,7 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createApp, h } from "vue";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy";
 import { Link } from "@inertiajs/vue3";
+import { MotionPlugin } from "@vueuse/motion";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -21,7 +22,11 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .component("Link", Link)
+            .use(MotionPlugin)
             .mount(el);
+
+        app.config.compilerOptions.isCustomElement = (tag) =>
+            tag.startsWith("Radix");
     },
     progress: {
         color: "#4B5563",

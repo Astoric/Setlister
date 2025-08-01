@@ -1,183 +1,365 @@
 <script setup>
-import { ref } from "vue";
-import ApplicationLogo from "@/Components/ApplicationLogo.vue";
-import Dropdown from "@/Components/Dropdown.vue";
-import DropdownLink from "@/Components/DropdownLink.vue";
-import { Link, usePage } from "@inertiajs/vue3";
-import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import { computed, ref } from "vue";
+import { Head, Link, usePage, router } from "@inertiajs/vue3";
+
+import {
+    Calendar,
+    Music,
+    Users,
+    Search,
+    LogOut,
+    Settings,
+    Menu,
+    X,
+    BarChart3, // Basic Lucide icons
+    // Other Lucide icons that might have been copied but are not used in AuthenticatedLayout itself:
+    // MapPin, CalendarDays, Clock, Volume2, TrendingUp, Award, Play, User, Shield, ExternalLink, AlertTriangle, Check
+} from "lucide-vue-next";
+
+// New UI Components
+import Avatar from "@/Components/ui/Avatar.vue";
+import AvatarImage from "@/Components/ui/AvatarImage.vue";
+import AvatarFallback from "@/Components/ui/AvatarFallback.vue";
+import Button from "@/Components/ui/Button.vue";
+import DropdownMenu from "@/Components/ui/DropdownMenu.vue";
+import DropdownMenuContent from "@/Components/ui/DropdownMenuContent.vue";
+import DropdownMenuItem from "@/Components/ui/DropdownMenuItem.vue";
+import DropdownMenuSeparator from "@/Components/ui/DropdownMenuSeparator.vue";
+import DropdownMenuTrigger from "@/Components/ui/DropdownMenuTrigger.vue";
+import Input from "@/Components/ui/Input.vue";
 
 const user = usePage().props.auth.user;
 
-/**
- * Determines if a navigation link is active.
- */
-const isActive = (path) => usePage().url.startsWith(path);
+const sidebarCollapsed = ref(false);
+const currentPage = computed(() => usePage().component);
+
+const getAvatarFallback = (name) => {
+    return name
+        ? name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .substring(0, 2)
+              .toUpperCase()
+        : "??";
+};
+
+const handleProfileSettings = () => {
+    router.visit(route("profile.edit"));
+};
+const handleLogout = () => {
+    router.post(route("logout"));
+};
+
+const pageVariants = {
+    initial: { opacity: 0, y: 20 },
+    in: { opacity: 1, y: 0 },
+    out: { opacity: 0, y: -20 },
+};
+
+const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.3,
+};
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-neutral-900 text-white">
-        <!-- Persistent Sidebar -->
-        <aside
-            class="fixed inset-y-0 left-0 flex w-64 flex-col justify-between p-6 shadow-lg bg-neutral-950 text-white">
-            <div>
-                <!-- Logo & Title -->
-                <div class="mb-8 flex shrink-0 items-center">
-                    <Link :href="route('dashboard')">
-                        <ApplicationLogo
-                            class="block h-9 w-auto fill-current text-white" />
-                    </Link>
-                    <span class="ml-3 text-2xl font-semibold text-accent-500">
-                        Setlister
-                    </span>
+    <div class="min-h-screen bg-[#212121] text-white">
+        <div class="flex">
+            <!-- Sidebar -->
+            <div
+                :class="`${
+                    sidebarCollapsed ? 'w-16' : 'w-64'
+                } bg-[#121212] border-r border-gray-800 min-h-screen transition-all duration-300`"
+                :style="{ width: sidebarCollapsed ? '64px' : '256px' }">
+                <div class="p-4">
+                    <!-- Header with toggle -->
+                    <div class="mb-8 flex items-center justify-between">
+                        <!-- Removed AnimatePresence and motion.div around logo/title -->
+                        <div
+                            v-if="!sidebarCollapsed"
+                            class="flex items-center gap-3">
+                            <Link
+                                :href="route('dashboard')"
+                                class="flex items-center gap-2">
+                                <div
+                                    class="flex h-8 w-8 items-center justify-center rounded-full">
+                                    <img
+                                        src="/images/logo.svg"
+                                        alt="Setlister Logo"
+                                        class="h-15 w-auto" />
+                                </div>
+                                <span
+                                    class="bg-green-500 bg-clip-text text-xl font-semibold text-transparent">
+                                    Setlister
+                                </span>
+                            </Link>
+                        </div>
+
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            @click="sidebarCollapsed = !sidebarCollapsed"
+                            class="p-2 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white">
+                            <!-- Removed motion.div around icons -->
+                            <Menu v-if="sidebarCollapsed" class="h-4 w-4" />
+                            <X v-else class="h-4 w-4" />
+                        </Button>
+                    </div>
+
+                    <!-- Collapsed logo when sidebar is collapsed -->
+                    <!-- Removed AnimatePresence and motion.div -->
+                    <div
+                        v-if="sidebarCollapsed"
+                        class="mb-8 flex justify-center">
+                        <div
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-emerald-400 to-teal-500">
+                            <Music class="h-4 w-4 text-white" />
+                        </div>
+                    </div>
+
+                    <!-- Navigation Links -->
+                    <nav class="space-y-2">
+                        <!-- MODIFIED: Add items-center and gap-3 to ensure inline alignment -->
+                        <Button
+                            :variant="
+                                currentPage.startsWith('Upcoming')
+                                    ? 'secondary'
+                                    : 'ghost'
+                            "
+                            as-child
+                            :class="`${
+                                sidebarCollapsed
+                                    ? 'w-full justify-center px-2'
+                                    : 'w-full justify-start gap-3'
+                            } ${
+                                currentPage.startsWith('Upcoming')
+                                    ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30'
+                                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                            } transition-all duration-200`">
+                            <Link
+                                :href="route('dashboard')"
+                                :title="sidebarCollapsed ? 'Upcoming Gigs' : ''"
+                                class="flex items-center gap-3">
+                                <!-- ADDED: flex items-center gap-3 -->
+                                <Calendar class="h-4 w-4" />
+                                <span v-if="!sidebarCollapsed">
+                                    Upcoming Gigs
+                                </span>
+                            </Link>
+                        </Button>
+                        <Button
+                            :variant="
+                                currentPage.startsWith('Past')
+                                    ? 'secondary'
+                                    : 'ghost'
+                            "
+                            as-child
+                            :class="`${
+                                sidebarCollapsed
+                                    ? 'w-full justify-center px-2'
+                                    : 'w-full justify-start gap-3'
+                            } ${
+                                currentPage.startsWith('Past')
+                                    ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30'
+                                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                            } transition-all duration-200`">
+                            <Link
+                                :href="route('past-gigs')"
+                                :title="sidebarCollapsed ? 'Past Gigs' : ''"
+                                class="flex items-center gap-3">
+                                <!-- ADDED: flex items-center gap-3 -->
+                                <Music class="h-4 w-4" />
+                                <span v-if="!sidebarCollapsed">Past Gigs</span>
+                            </Link>
+                        </Button>
+                        <Button
+                            :variant="
+                                currentPage.startsWith('SavedSetlists') ||
+                                currentPage.startsWith('SetlistDetail')
+                                    ? 'secondary'
+                                    : 'ghost'
+                            "
+                            as-child
+                            :class="`${
+                                sidebarCollapsed
+                                    ? 'w-full justify-center px-2'
+                                    : 'w-full justify-start gap-3'
+                            } ${
+                                currentPage.startsWith('SavedSetlists') ||
+                                currentPage.startsWith('SetlistDetail')
+                                    ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30'
+                                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                            } transition-all duration-200`">
+                            <Link
+                                :href="route('saved-setlists')"
+                                :title="
+                                    sidebarCollapsed ? 'Saved Setlists' : ''
+                                "
+                                class="flex items-center gap-3">
+                                <!-- ADDED: flex items-center gap-3 -->
+                                <Users class="h-4 w-4" />
+                                <span v-if="!sidebarCollapsed">
+                                    Saved Setlists
+                                </span>
+                            </Link>
+                        </Button>
+                        <Button
+                            :variant="
+                                currentPage.startsWith('Stats')
+                                    ? 'secondary'
+                                    : 'ghost'
+                            "
+                            as-child
+                            :class="`${
+                                sidebarCollapsed
+                                    ? 'w-full justify-center px-2'
+                                    : 'w-full justify-start gap-3'
+                            } ${
+                                currentPage.startsWith('Stats')
+                                    ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30'
+                                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                            } transition-all duration-200`">
+                            <Link
+                                :href="route('stats.index')"
+                                :title="sidebarCollapsed ? 'Stats' : ''"
+                                class="flex items-center gap-3">
+                                <!-- ADDED: flex items-center gap-3 -->
+                                <BarChart3 class="h-4 w-4" />
+                                <span v-if="!sidebarCollapsed">Stats</span>
+                            </Link>
+                        </Button>
+                        <Button
+                            :variant="
+                                currentPage.startsWith('Profile')
+                                    ? 'secondary'
+                                    : 'ghost'
+                            "
+                            as-child
+                            :class="`${
+                                sidebarCollapsed
+                                    ? 'w-full justify-center px-2'
+                                    : 'w-full justify-start gap-3'
+                            } ${
+                                currentPage.startsWith('Profile')
+                                    ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30'
+                                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                            } transition-all duration-200`">
+                            <Link
+                                :href="route('profile.edit')"
+                                :title="sidebarCollapsed ? 'Profile' : ''"
+                                class="flex items-center gap-3">
+                                <!-- ADDED: flex items-center gap-3 -->
+                                <Settings class="h-4 w-4" />
+                                <span v-if="!sidebarCollapsed">Profile</span>
+                            </Link>
+                        </Button>
+                    </nav>
                 </div>
-
-                <!-- Navigation Links -->
-                <nav class="space-y-4">
-                    <!-- Upcoming Gigs (Default) -->
-                    <Link
-                        :href="route('dashboard')"
-                        class="flex items-center rounded-lg p-3 transition-colors duration-200"
-                        :class="{
-                            'bg-accent-500 text-neutral-950':
-                                route().current('dashboard'),
-                            'hover:bg-neutral-800':
-                                !route().current('dashboard'),
-                        }">
-                        <svg
-                            class="mr-3 h-5 w-5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
-                        </svg>
-                        Upcoming Gigs
-                    </Link>
-                    <!-- Past Gigs -->
-                    <Link
-                        :href="route('past-gigs')"
-                        class="flex items-center rounded-lg p-3 transition-colors duration-200"
-                        :class="{
-                            'bg-accent-500 text-neutral-950':
-                                route().current('past-gigs'),
-                            'hover:bg-neutral-800':
-                                !route().current('past-gigs'),
-                        }">
-                        <svg
-                            class="mr-3 h-5 w-5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                fill-rule="evenodd"
-                                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        Past Gigs
-                    </Link>
-                    <!-- Saved Setlists -->
-                    <Link
-                        :href="route('saved-setlists')"
-                        class="flex items-center rounded-lg p-3 transition-colors duration-200"
-                        :class="{
-                            'bg-accent-500 text-neutral-950':
-                                route().current('saved-setlists'),
-                            'hover:bg-neutral-800':
-                                !route().current('saved-setlists'),
-                        }">
-                        <svg
-                            class="mr-3 h-5 w-5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        Saved Setlists
-                    </Link>
-                </nav>
             </div>
-        </aside>
 
-        <!-- Main Content Area -->
-        <div class="ml-64 flex flex-1 flex-col">
-            <!-- Header -->
-            <header
-                class="flex h-20 items-center justify-between p-6 shadow-md bg-neutral-900">
-                <h2 class="text-xl font-semibold leading-tight text-white">
-                    Hi {{ user.name }}
-                </h2>
+            <!-- Main Content -->
+            <div class="flex-1">
+                <!-- Header -->
+                <div class="bg-[#212121] border-b border-gray-700 p-6">
+                    <div class="flex items-center justify-between">
+                        <!-- Removed motion.div -->
+                        <div>
+                            <h1 class="text-2xl font-semibold text-white">
+                                Hi {{ user.name }}
+                            </h1>
+                            <p class="mt-1 text-gray-400">
+                                Ready to create some amazing setlists?
+                            </p>
+                        </div>
 
-                <div class="flex w-1/3 items-center space-x-4">
-                    <!-- Search Bar -->
-                    <div class="relative flex-grow">
-                        <input
-                            type="text"
-                            placeholder="Search by Album title, UPC, Artist"
-                            class="w-full rounded-lg border border-neutral-700 bg-neutral-700 py-2 pl-10 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-accent-500" />
-                        <MagnifyingGlassIcon
-                            class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-neutral-400" />
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <Search
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400 h-4 w-4" />
+                                <Input
+                                    placeholder="Search by Album title, UPC, Artist"
+                                    class="w-80 pl-10 bg-[#191919] border-gray-600 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200" />
+                            </div>
+
+                            <!-- Profile Dropdown -->
+                            <DropdownMenu>
+                                <DropdownMenuTrigger
+                                    class="relative h-8 w-8 cursor-pointer rounded-full ring-2 ring-emerald-500/30 transition-all hover:ring-emerald-500/50">
+                                    <Avatar class="h-8 w-8">
+                                        <AvatarImage
+                                            v-if="
+                                                user.spotify_profile_picture_url
+                                            "
+                                            :src="
+                                                user.spotify_profile_picture_url
+                                            "
+                                            alt="Profile Picture" />
+                                        <AvatarFallback
+                                            v-else
+                                            class="bg-gradient-to-r from-gray-700 to-gray-600 text-white text-lg">
+                                            {{ getAvatarFallback(user.name) }}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    class="w-56 bg-[#191919] border-gray-600"
+                                    align="end">
+                                    <DropdownMenuItem
+                                        @click="handleProfileSettings"
+                                        class="cursor-pointer text-gray-300 focus:bg-gray-700 focus:text-white">
+                                        <Settings class="mr-2 h-4 w-4" />
+                                        <span>Profile settings</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator
+                                        class="bg-gray-700" />
+                                    <DropdownMenuItem
+                                        @click="handleLogout"
+                                        class="cursor-pointer text-gray-300 focus:bg-gray-700 focus:text-white">
+                                        <LogOut class="mr-2 h-4 w-4" />
+                                        <span>Logout</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-4">
-                    <!-- User Profile Dropdown -->
-                    <Dropdown align="right" width="48">
-                        <template #trigger>
-                            <button
-                                type="button"
-                                class="inline-flex items-center rounded-md border border-transparent bg-neutral-700 px-3 py-2 text-sm font-medium leading-4 text-white transition-colors duration-150 focus:outline-none hover:text-neutral-300">
-                                <!-- User Profile Picture -->
-                                <img
-                                    :src="
-                                        user.spotify_profile_picture_url ||
-                                        `https://ui-avatars.com/api/?name=${user.name}&color=7F9CF5&background=EBF4FF`
-                                    "
-                                    alt="User Avatar"
-                                    class="mr-2 h-8 w-8 rounded-full object-cover" />
-                                {{ user.name }}
-
-                                <svg
-                                    class="ml-2 h-4 w-4"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </template>
-
-                        <!-- Dropdown Content -->
-                        <template #content>
-                            <div
-                                class="rounded-lg bg-neutral-800 py-1 shadow-lg">
-                                <DropdownLink
-                                    :href="route('profile.edit')"
-                                    class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-700 hover:text-white">
-                                    Profile
-                                </DropdownLink>
-                                <DropdownLink
-                                    :href="route('logout')"
-                                    method="post"
-                                    as="button"
-                                    class="block w-full px-4 py-2 text-left text-sm text-neutral-300 hover:bg-neutral-700 hover:text-white">
-                                    Log Out
-                                </DropdownLink>
-                            </div>
-                        </template>
-                    </Dropdown>
-                </div>
-            </header>
-
-            <!-- Page Content -->
-            <main class="mb-6 mr-6 ml-6 flex-1 rounded-lg bg-neutral-800 p-6">
-                <slot />
-            </main>
+                <!-- Page Content Slot -->
+                <main class="p-6">
+                    <Transition
+                        name="page-slide"
+                        mode="out-in"
+                        :duration="pageTransition.duration * 1000">
+                        <div
+                            :key="currentPage"
+                            v-motion-slide-visible-once-bottom
+                            :initial="pageVariants.initial"
+                            :animate="pageVariants.in"
+                            :exit="pageVariants.out"
+                            :transition="pageTransition">
+                            <slot />
+                        </div>
+                    </Transition>
+                </main>
+            </div>
         </div>
     </div>
 </template>
+
+<style>
+/* Define a generic fade transition (as a fallback or for simple transitions) */
+.page-slide-enter-active,
+.page-slide-leave-active {
+    transition: all 0.5s ease-in-out; /* Match pageTransition duration */
+}
+.page-slide-enter-from {
+    opacity: 0;
+    transform: translateY(20px); /* Matches initial.y */
+}
+.page-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-20px); /* Matches exit.y */
+}
+</style>

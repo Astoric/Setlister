@@ -1,21 +1,26 @@
 <script setup>
-import { computed, watch, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import Modal from "@/Components/Modal.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import TagInput from "@/Components/TagInput.vue";
-import TextInput from "@/Components/TextInput.vue";
-import { XMarkIcon } from "@heroicons/vue/24/outline";
+
+// New UI Components
+import Button from "@/Components/ui/Button.vue";
+import Input from "@/Components/ui/Input.vue";
+import Label from "@/Components/ui/Label.vue";
+import Dialog from "@/Components/ui/Dialog.vue";
+import DialogContent from "@/Components/ui/DialogContent.vue";
+import DialogHeader from "@/Components/ui/DialogHeader.vue";
+import DialogTitle from "@/Components/ui/DialogTitle.vue";
+import DialogDescription from "@/Components/ui/DialogDescription.vue";
+import Badge from "@/Components/ui/Badge.vue"; // For tags
+// Not needed anymore: TagInput
+
+// Lucide Icons
+import { Calendar, Clock, Trash2, X, AlertTriangle } from "lucide-vue-next";
 
 const props = defineProps({
-    show: {
-        type: Boolean,
-    },
-    gig: {
-        type: Object,
-    },
+    show: { type: Boolean },
+    gig: { type: Object }, // Optional prop for the gig object (if in edit mode)
 });
 
 const emit = defineEmits(["close"]);
@@ -24,19 +29,25 @@ const form = useForm({
     artist_band_name: "",
     venue: "",
     gig_date_time: "",
-    support_acts: [],
-    people_attending: [],
+    support_acts: [], // Will be array from this component's internal logic
+    people_attending: [], // Will be array from this component's internal logic
 });
 
+// Internal refs for the individual tag input fields
+const supportActInput = ref("");
+const attendeeInput = ref("");
+
+// State for delete confirmation modal
 const confirmingGigDeletion = ref(false);
 
 /**
- * Watches changes in modal visibility and gig prop to initialize or reset the form.route
+ * Watches changes in modal visibility and gig prop to initialize or reset the form.
  */
 watch(
     () => [props.show, props.gig],
     ([newShow, newGig]) => {
         if (newShow) {
+            // Populate form fields if in edit mode
             if (newGig) {
                 form.artist_band_name = newGig.artist_band_name;
                 form.venue = newGig.venue;
@@ -44,15 +55,15 @@ watch(
                     ? new Date(newGig.gig_date_time).toISOString().slice(0, 16)
                     : "";
 
+                // Assign arrays directly, ensuring they are actual arrays or empty arrays
                 form.support_acts = Array.isArray(newGig.support_acts)
                     ? newGig.support_acts
                     : [];
                 form.people_attending = Array.isArray(newGig.people_attending)
                     ? newGig.people_attending
                     : [];
-
-                form.clearErrors();
             } else {
+                // Add mode: Reset form to empty with explicit array types
                 form.reset({
                     artist_band_name: "",
                     venue: "",
@@ -60,9 +71,14 @@ watch(
                     support_acts: [],
                     people_attending: [],
                 });
-                form.clearErrors();
             }
+            form.clearErrors(); // Clear any previous errors
+
+            // Clear internal tag input fields when modal opens
+            supportActInput.value = "";
+            attendeeInput.value = "";
         } else {
+            // Modal is closing: Always reset form and clear errors
             form.reset({
                 artist_band_name: "",
                 venue: "",
@@ -71,9 +87,12 @@ watch(
                 people_attending: [],
             });
             form.clearErrors();
+            confirmingGigDeletion.value = false; // Reset confirmation state on close
+            supportActInput.value = ""; // Clear internal tag input fields on close
+            attendeeInput.value = "";
         }
     },
-    { immediate: true }
+    { immediate: true } // Run immediately on component mount/initial show
 );
 
 /**
@@ -85,23 +104,76 @@ const modalTitle = computed(() => (props.gig ? "Edit Gig" : "Add New Gig"));
  * Dynamically determines the submit button text.
  */
 const submitButtonText = computed(() =>
-    props.gig ? "Save Changes" : "Add Gig"
+    props.gig ? "Save Changes" : "Create Gig"
 );
 
-const cancel = () => {
-    emit("close");
-    form.artist_band_name = "";
-    form.venue = "";
-    form.gig_date_time = "";
-    form.support_acts = [];
-    form.people_attending = [];
-    form.clearErrors();
+/**
+ * Helper to process text input into tags for supportActs and peopleAttending.
+ */
+const processTagInput = (inputRef, currentTagsArray) => {
+    const inputString = inputRef.value;
+    if (inputString.trim() === "") return currentTagsArray; // Return current if input is empty
+
+    const newTags = inputString
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
+
+    const combinedTags = [...new Set([...currentTagsArray, ...newTags])]; // Ensure uniqueness
+
+    inputRef.value = ""; // Clear the input field
+
+    return combinedTags;
+};
+
+/**
+ * Handles adding a support act on Enter key or blur.
+ */
+const handleAddSupportAct = (event) => {
+    if (event.key === "Enter" || event.type === "blur") {
+        event.preventDefault(); // Prevent form submission or native blur action
+        form.support_acts = processTagInput(supportActInput, form.support_acts);
+    }
+};
+
+/**
+ * Handles removing a support act.
+ */
+const handleRemoveSupportAct = (index) => {
+    form.support_acts = form.support_acts.filter((_, i) => i !== index);
+};
+
+/**
+ * Handles adding an attendee on Enter key or blur.
+ */
+const handleAddAttendee = (event) => {
+    if (event.key === "Enter" || event.type === "blur") {
+        event.preventDefault(); // Prevent form submission or native blur action
+        form.people_attending = processTagInput(
+            attendeeInput,
+            form.people_attending
+        );
+    }
+};
+
+/**
+ * Handles removing an attendee.
+ */
+const handleRemoveAttendee = (index) => {
+    form.people_attending = form.people_attending.filter((_, i) => i !== index);
 };
 
 /**
  * Handles form submission for both adding and editing gigs.
  */
 const submit = () => {
+    // Process any remaining text in tag inputs before final submission
+    form.support_acts = processTagInput(supportActInput, form.support_acts);
+    form.people_attending = processTagInput(
+        attendeeInput,
+        form.people_attending
+    );
+
     form.transform((data) => {
         let utcDateTime = null;
         if (data.gig_date_time) {
@@ -127,27 +199,21 @@ const submit = () => {
         form.patch(route("gigs.update", props.gig.id), {
             onSuccess: () => {
                 emit("close");
-                form.artist_band_name = "";
-                form.venue = "";
-                form.gig_date_time = "";
-                form.support_acts = [];
-                form.people_attending = [];
-                form.clearErrors();
+                // For edit mode, form reset is handled by watch when modal closes
             },
-            onError: () => {},
+            onError: () => {
+                // Errors displayed by InputError components
+            },
         });
     } else {
         form.post(route("gigs.store"), {
             onSuccess: () => {
                 emit("close");
-                form.artist_band_name = "";
-                form.venue = "";
-                form.gig_date_time = "";
-                form.support_acts = [];
-                form.people_attending = [];
-                form.clearErrors();
+                // Reset form for next new gig entry (already handled by watch when modal closes)
             },
-            onError: () => {},
+            onError: () => {
+                // Errors displayed by InputError components
+            },
         });
     }
 };
@@ -165,161 +231,257 @@ const confirmGigDeletion = () => {
 const deleteGig = () => {
     form.delete(route("gigs.destroy", props.gig.id), {
         onSuccess: () => {
-            emit("close");
+            emit("close"); // Close the edit modal
         },
-        onError: () => {},
+        onError: () => {
+            // Error handling for deletion
+        },
         onFinish: () => {
-            confirmingGigDeletion.value = false;
+            confirmingGigDeletion.value = false; // Close confirmation modal
         },
     });
 };
+
+// Computed properties for date/time input splitting/joining
+const dateInput = computed({
+    get: () => (form.gig_date_time ? form.gig_date_time.split("T")[0] : ""),
+    set: (value) => {
+        const time = form.gig_date_time
+            ? form.gig_date_time.split("T")[1]
+            : "00:00";
+        form.gig_date_time = value ? `${value}T${time}` : "";
+    },
+});
+
+const timeInput = computed({
+    get: () => (form.gig_date_time ? form.gig_date_time.split("T")[1] : ""),
+    set: (value) => {
+        const date = form.gig_date_time
+            ? form.gig_date_time.split("T")[0]
+            : "2000-01-01"; // Default date if time is set first
+        form.gig_date_time = value ? `${date}T${value}` : "";
+    },
+});
 </script>
 
 <template>
-    <Modal :show="show" @close="cancel()" :maxWidth="'2xl'">
-        <div class="relative rounded-lg bg-neutral-900 p-6 text-white">
-            <h2 class="mb-6 text-2xl font-semibold">{{ modalTitle }}</h2>
+    <Dialog
+        :open="show"
+        @update:open="emit('close')"
+        :max-width="'2xl'"
+        v-if="show">
+        <DialogContent class="bg-[#191919] border-gray-600 text-white">
+            <DialogHeader>
+                <DialogTitle class="text-white text-2xl font-semibold">
+                    {{ modalTitle }}
+                </DialogTitle>
+                <DialogDescription class="text-gray-400">
+                    {{
+                        gig
+                            ? "Make changes to your gig details below."
+                            : "Fill in the details for your new gig."
+                    }}
+                </DialogDescription>
+            </DialogHeader>
 
-            <!-- Close button -->
-            <button
-                @click="cancel()"
-                class="absolute right-4 top-4 text-neutral-400 transition-colors hover:text-white">
-                <XMarkIcon class="h-6 w-6" />
-            </button>
-
-            <form @submit.prevent="submit">
+            <form @submit.prevent="submit" class="mt-6 space-y-6">
                 <!-- Artist/Band Name -->
-                <div class="mb-4">
-                    <InputLabel
-                        for="artist_band_name"
-                        value="Artist/Band Name" />
-                    <TextInput
+                <div class="space-y-2">
+                    <Label for="artist_band_name">Artist/Band Name</Label>
+                    <Input
                         id="artist_band_name"
                         type="text"
-                        class="mt-1 block w-full border-neutral-700 bg-neutral-800 text-white focus:border-accent-500 focus:ring-accent-500"
+                        class="mt-1 block w-full bg-[#191919] border-gray-600 text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
                         v-model="form.artist_band_name"
                         required
-                        autofocus />
+                        autofocus
+                        autocomplete="off" />
                     <InputError
                         class="mt-2"
                         :message="form.errors.artist_band_name" />
                 </div>
 
                 <!-- Venue -->
-                <div class="mb-4">
-                    <InputLabel for="venue" value="Venue" />
-                    <TextInput
+                <div class="space-y-2">
+                    <Label for="venue">Venue</Label>
+                    <Input
                         id="venue"
                         type="text"
-                        class="mt-1 block w-full border-neutral-700 bg-neutral-800 text-white focus:border-accent-500 focus:ring-accent-500"
+                        class="mt-1 block w-full bg-[#191919] border-gray-600 text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
                         v-model="form.venue"
-                        required />
+                        required
+                        autocomplete="off" />
                     <InputError class="mt-2" :message="form.errors.venue" />
                 </div>
 
                 <!-- Date & Time -->
-                <div class="mb-4">
-                    <InputLabel for="gig_date_time" value="Date & Time" />
-                    <TextInput
-                        id="gig_date_time"
-                        type="datetime-local"
-                        class="mt-1 block w-full border-neutral-700 bg-neutral-800 text-white focus:border-accent-500 focus:ring-accent-500"
-                        v-model="form.gig_date_time"
-                        required />
-                    <InputError
-                        class="mt-2"
-                        :message="form.errors.gig_date_time" />
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <Label for="gig_date_time_date">Date</Label>
+                        <div class="relative">
+                            <Input
+                                id="gig_date_time_date"
+                                type="date"
+                                v-model="dateInput"
+                                required
+                                class="w-full bg-[#191919] border-gray-600 text-white focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 pr-10" />
+                            <Calendar
+                                class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                        </div>
+                        <InputError
+                            class="mt-2"
+                            :message="form.errors.gig_date_time" />
+                    </div>
+                    <div class="space-y-2">
+                        <Label for="gig_date_time_time">Time</Label>
+                        <div class="relative">
+                            <Input
+                                id="gig_date_time_time"
+                                type="time"
+                                v-model="timeInput"
+                                required
+                                class="w-full bg-[#191919] border-gray-600 text-white focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 pr-10" />
+                            <Clock
+                                class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Support Acts -->
-                <div class="mb-4">
-                    <TagInput
-                        v-model="form.support_acts"
-                        label="Support Acts"
-                        placeholder="e.g., Artist A, Artist B"
-                        delimiter=","
-                        add-on-blur
-                        add-on-tab />
+                <div class="space-y-2">
+                    <Label for="support_acts_input">Support Acts</Label>
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        <Badge
+                            v-for="(act, index) in form.support_acts"
+                            :key="index"
+                            variant="secondary"
+                            class="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 px-3 py-1 flex items-center gap-2">
+                            {{ act }}
+                            <button
+                                type="button"
+                                @click="handleRemoveSupportAct(index)"
+                                class="text-emerald-400 hover:text-emerald-300 transition-colors">
+                                <X class="w-3 h-3" />
+                            </button>
+                        </Badge>
+                    </div>
+                    <Input
+                        id="support_acts_input"
+                        v-model="supportActInput"
+                        @keydown.enter="handleAddSupportAct"
+                        @blur="handleAddSupportAct"
+                        placeholder="e.g., Artist A, Artist B (Press Enter to add)"
+                        class="bg-[#191919] border-gray-600 text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200" />
                     <InputError
                         class="mt-2"
                         :message="form.errors.support_acts" />
                 </div>
 
                 <!-- People Attending -->
-                <div class="mb-6">
-                    <TagInput
-                        v-model="form.people_attending"
-                        label="People Attending"
-                        placeholder="e.g., John Doe, Jane Smith"
-                        delimiter=","
-                        add-on-blur
-                        add-on-tab />
+                <div class="space-y-2">
+                    <Label for="people_attending_input">People Attending</Label>
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        <Badge
+                            v-for="(attendee, index) in form.people_attending"
+                            :key="index"
+                            variant="secondary"
+                            class="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 px-3 py-1 flex items-center gap-2">
+                            {{ attendee }}
+                            <button
+                                type="button"
+                                @click="handleRemoveAttendee(index)"
+                                class="text-emerald-400 hover:text-emerald-300 transition-colors">
+                                <X class="w-3 h-3" />
+                            </button>
+                        </Badge>
+                    </div>
+                    <Input
+                        id="people_attending_input"
+                        v-model="attendeeInput"
+                        @keydown.enter="handleAddAttendee"
+                        @blur="handleAddAttendee"
+                        placeholder="e.g., John Doe, Jane Smith (Press Enter to add)"
+                        class="bg-[#191919] border-gray-600 text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200" />
                     <InputError
                         class="mt-2"
                         :message="form.errors.people_attending" />
                 </div>
-
-                <!-- Action Buttons -->
-                <div class="mt-6 flex items-center justify-between space-x-4">
-                    <!-- Delete Button (shown only in Edit Mode) -->
-                    <button
-                        v-if="gig"
-                        type="button"
-                        @click="confirmGigDeletion"
-                        class="rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700">
-                        Delete Gig
-                    </button>
-                    <!-- Spacer if not in edit mode -->
-                    <div v-else></div>
-
-                    <div class="flex space-x-4">
-                        <!-- Cancel Button -->
-                        <button
-                            type="button"
-                            @click="cancel()"
-                            class="rounded-lg bg-neutral-700 px-4 py-2 text-white transition-colors hover:bg-neutral-600">
-                            Cancel
-                        </button>
-                        <!-- Submit Button -->
-                        <PrimaryButton
-                            :class="{ 'opacity-25': form.processing }"
-                            :disabled="form.processing">
-                            {{ submitButtonText }}
-                        </PrimaryButton>
-                    </div>
-                </div>
             </form>
-        </div>
-    </Modal>
+
+            <!-- Modal Footer -->
+            <div
+                class="mt-8 flex items-center justify-between border-t border-gray-700 pt-6">
+                <!-- Delete Button (shown only in Edit Mode) -->
+                <div>
+                    <Button
+                        v-if="gig"
+                        variant="destructive"
+                        @click="confirmGigDeletion"
+                        class="bg-red-600 hover:bg-red-700 text-white transition-all duration-200">
+                        <Trash2 class="mr-2 h-4 w-4" />
+                        Delete Gig
+                    </Button>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <!-- Cancel Button -->
+                    <Button
+                        variant="ghost"
+                        @click="emit('close')"
+                        class="text-gray-400 hover:bg-gray-700 hover:text-white transition-all duration-200">
+                        Cancel
+                    </Button>
+                    <!-- Submit Button -->
+                    <Button
+                        @click="submit"
+                        :disabled="form.processing"
+                        class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200">
+                        {{ submitButtonText }}
+                    </Button>
+                </div>
+            </div>
+        </DialogContent>
+    </Dialog>
 
     <!-- Delete Confirmation Modal -->
-    <Modal
-        :show="confirmingGigDeletion"
-        @close="confirmingGigDeletion = false"
-        :maxWidth="'sm'">
-        <div class="p-6 bg-neutral-900 text-white rounded-lg">
-            <h3 class="text-lg font-medium text-white mb-4">
-                Are you sure you want to delete this gig?
-            </h3>
-            <p class="text-sm text-neutral-400 mb-6">
-                This action cannot be undone. All associated data, including its
-                setlist, will be permanently removed.
-            </p>
-            <div class="flex justify-end space-x-3">
-                <button
-                    type="button"
+    <Dialog
+        :open="confirmingGigDeletion"
+        @update:open="confirmingGigDeletion = $event"
+        :max-width="'sm'"
+        v-if="confirmingGigDeletion">
+        <DialogContent class="bg-[#191919] border-gray-700 text-white">
+            <DialogHeader>
+                <div class="mb-4 flex justify-center text-red-400">
+                    <AlertTriangle class="h-12 w-12" />
+                </div>
+                <DialogTitle
+                    class="text-2xl font-semibold text-white text-center">
+                    Are you sure?
+                </DialogTitle>
+                <DialogDescription class="text-gray-400 text-center">
+                    This action is permanent and cannot be undone. All your data
+                    will be permanently deleted.
+                </DialogDescription>
+            </DialogHeader>
+
+            <div class="flex justify-end gap-3">
+                <Button
+                    variant="ghost"
                     @click="confirmingGigDeletion = false"
-                    class="rounded-lg bg-neutral-700 px-4 py-2 text-white transition-colors hover:bg-neutral-600">
+                    class="text-gray-400 hover:bg-gray-700 hover:text-white transition-all duration-200">
                     Cancel
-                </button>
-                <PrimaryButton
+                </Button>
+                <Button
                     @click="deleteGig"
-                    :class="{ 'opacity-25': form.processing }"
+                    :class="{
+                        'opacity-75 cursor-not-allowed': form.processing,
+                    }"
                     :disabled="form.processing"
-                    class="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">
-                    Delete
-                </PrimaryButton>
+                    variant="destructive"
+                    class="bg-red-600 hover:bg-red-700 text-white transition-all duration-200">
+                    Delete Gig
+                </Button>
             </div>
-        </div>
-    </Modal>
+        </DialogContent>
+    </Dialog>
 </template>

@@ -1,63 +1,121 @@
 <script setup>
+import { computed, ref, watch } from "vue";
+import { Head, Link, usePage } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, usePage } from "@inertiajs/vue3";
-import { ref, computed } from "vue";
+
+// NEW UI Components - Import from individual files
+import Button from "@/Components/ui/Button.vue";
+import Input from "@/Components/ui/Input.vue";
+import Avatar from "@/Components/ui/Avatar.vue";
+import AvatarImage from "@/Components/ui/AvatarImage.vue";
+import AvatarFallback from "@/Components/ui/AvatarFallback.vue";
+import Badge from "@/Components/ui/Badge.vue";
+import Card from "@/Components/ui/Card.vue";
+import CardContent from "@/Components/ui/CardContent.vue";
+import CardHeader from "@/Components/ui/CardHeader.vue";
+import CardTitle from "@/Components/ui/CardTitle.vue";
+// Fix: Import specific Dialog components used in this template explicitly
+import Dialog from "@/Components/ui/Dialog.vue"; // Root dialog
+import DialogContent from "@/Components/ui/DialogContent.vue";
+import DialogHeader from "@/Components/ui/DialogHeader.vue";
+import DialogTitle from "@/Components/ui/DialogTitle.vue";
+import DialogDescription from "@/Components/ui/DialogDescription.vue";
+
+// Specific components for modals (already in components/) - these are fine
 import GigFormModal from "@/Components/GigFormModal.vue";
 import SetlistGeneratorModal from "@/Components/SetlistGeneratorModal.vue";
 import GigDetailModal from "@/Components/GigDetailModal.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import { PlusIcon, PencilIcon } from "@heroicons/vue/24/outline";
+
+// Lucide Icons (as used in App.jsx)
+import {
+    Plus,
+    Edit,
+    Calendar,
+    MapPin,
+    List,
+    CalendarDays,
+    Eye,
+    Music,
+    Star,
+    Users,
+} from "lucide-vue-next"; // Add any missing here
 
 const props = defineProps({
-    gigs: Array,
+    gigs: {
+        type: Array,
+    },
 });
 
+// Processed gigs (ensures arrays are proper JS arrays)
+const processedGigs = ref([]);
+watch(
+    () => props.gigs,
+    (newGigs) => {
+        if (newGigs) {
+            processedGigs.value = newGigs.map((gig) => {
+                return {
+                    ...gig,
+                    support_acts: Array.isArray(gig.support_acts)
+                        ? gig.support_acts
+                        : [],
+                    people_attending: Array.isArray(gig.people_attending)
+                        ? gig.people_attending
+                        : [],
+                };
+            });
+        } else {
+            processedGigs.value = [];
+        }
+    },
+    { immediate: true }
+);
+
+// General UI state
+const hasGigs = computed(
+    () => processedGigs.value && processedGigs.value.length > 0
+);
+const flashSuccess = computed(() => usePage().props.flash?.success || null);
+
+// Modal states for current functionality
 const showAddGigModal = ref(false);
 const showEditGigModal = ref(false);
 const selectedGigForEdit = ref(null);
-
 const showSetlistModal = ref(false);
 const selectedGigForSetlist = ref(null);
-
 const showGigDetailModal = ref(false);
 const selectedGigForDetail = ref(null);
 
-const hasGigs = computed(() => props.gigs && props.gigs.length > 0);
-const flashSuccess = computed(() => usePage().props.flash?.success || null);
+// Additional state from App.jsx for upcoming/past gig page
+const viewMode = ref("list"); // 'list' or 'calendar'
+const selectedDate = ref(new Date()); // For calendar view
 
+// --- Methods for existing functionality ---
 const openAddGigModal = () => {
     showAddGigModal.value = true;
 };
-
 const closeAddGigModal = () => {
     showAddGigModal.value = false;
 };
-
 const openEditGigModal = (gig) => {
     selectedGigForEdit.value = gig;
     showEditGigModal.value = true;
 };
-
 const closeEditGigModal = () => {
     showEditGigModal.value = false;
     selectedGigForEdit.value = null;
 };
-
 const openSetlistModal = (gig) => {
     selectedGigForSetlist.value = gig;
     showSetlistModal.value = true;
 };
-
 const closeSetlistModal = () => {
     showSetlistModal.value = false;
     selectedGigForSetlist.value = null;
 };
-
 const openGigDetailModal = (gig) => {
     selectedGigForDetail.value = gig;
     showGigDetailModal.value = true;
 };
-
 const closeGigDetailModal = () => {
     showGigDetailModal.value = false;
     selectedGigForDetail.value = null;
@@ -73,6 +131,35 @@ const formatDateTime = (dateTimeString) => {
     };
     return new Date(dateTimeString).toLocaleString("en-US", options);
 };
+
+// --- New/Adapted methods from App.jsx ---
+const getAvatarFallback = (name) => {
+    return name
+        ? name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .substring(0, 2)
+              .toUpperCase()
+        : "??";
+};
+const renderStars = (rating) => {
+    return Array.from({ length: 5 }, (_, i) =>
+        h(Star, {
+            // Use h() to render Lucide Star component
+            key: i,
+            class: `w-3 h-3 transition-colors duration-200 ${
+                i < rating ? "text-yellow-400 fill-current" : "text-gray-500"
+            }`,
+        })
+    );
+};
+const hasSetlist = (artist, date) => {
+    // This logic relies on `savedSetlists` data which is not available here.
+    // This functionality will be disabled for now unless savedSetlists prop is passed.
+    // For now, return false.
+    return false; // Placeholder
+};
 </script>
 
 <template>
@@ -84,145 +171,272 @@ const formatDateTime = (dateTimeString) => {
                 <!-- Success message display -->
                 <div
                     v-if="flashSuccess"
-                    class="bg-accent-500 text-neutral-900 px-4 py-3 rounded-lg shadow-md mb-4"
+                    class="mb-4 rounded-lg bg-accent-500 px-4 py-3 shadow-md text-neutral-900"
                     v-html="flashSuccess"></div>
 
-                <!-- Header for Upcoming Gigs -->
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="font-semibold text-xl text-white leading-tight">
-                        Upcoming Gigs
-                    </h2>
-                    <PrimaryButton
-                        v-if="hasGigs"
-                        @click="openAddGigModal"
-                        class="flex items-center">
-                        <PlusIcon class="h-5 w-5 mr-2" />
-                        Add New Gig
-                    </PrimaryButton>
-                </div>
-
-                <!-- Conditional Rendering: If no gigs present vs. Gigs present -->
-                <div
-                    v-if="!hasGigs"
-                    class="bg-neutral-800 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center">
-                    <h3 class="text-white text-xl font-semibold mb-4">
-                        No Upcoming Gigs Yet!
-                    </h3>
-                    <PrimaryButton
-                        @click="openAddGigModal"
-                        class="flex items-center mx-auto">
-                        <PlusIcon class="h-5 w-5 mr-2" />
-                        Add New Gig
-                    </PrimaryButton>
-                </div>
-
-                <div v-else class="space-y-4">
-                    <!-- List of Gigs -->
-                    <div
-                        v-for="gig in gigs"
-                        :key="gig.id"
-                        @click="openGigDetailModal(gig)"
-                        class="bg-neutral-800 overflow-hidden shadow-sm sm:rounded-lg p-4 flex items-center cursor-pointer hover:bg-neutral-700 transition-colors duration-200 relative">
-                        <!-- Artist Image (Left) -->
-                        <div class="flex-shrink-0 mr-4">
-                            <img
-                                v-if="gig.artist_image_url"
-                                :src="gig.artist_image_url"
-                                alt="Artist"
-                                class="w-16 h-16 rounded-full object-cover border border-neutral-700" />
-                            <div
-                                v-else
-                                class="w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center text-neutral-400 text-xs overflow-hidden">
-                                No Image
-                            </div>
-                        </div>
-
-                        <!-- Main Gig Details -->
-                        <div class="flex-grow">
-                            <h3 class="text-white text-lg font-semibold">
-                                {{ gig.artist_band_name }}
-                            </h3>
-                            <p class="text-neutral-400 text-sm mt-1">
-                                {{ gig.venue }} -
-                                {{ formatDateTime(gig.gig_date_time) }}
-                            </p>
-                            <div class="mt-2 text-neutral-400 text-sm">
-                                Support:
-                                {{
-                                    (Array.isArray(gig.support_acts)
-                                        ? gig.support_acts
-                                        : []
-                                    ).join(", ") || "None"
-                                }}
-                            </div>
-                            <div class="mt-2 flex flex-wrap gap-2">
-                                <!-- People Attending Tags -->
-                                <span
-                                    v-if="
-                                        Array.isArray(gig.people_attending) &&
-                                        gig.people_attending.length
-                                    "
-                                    v-for="person in gig.people_attending"
-                                    :key="person"
-                                    class="bg-green-500 text-neutral-900 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                    {{ person }}
-                                </span>
-                                <span v-else class="text-neutral-500 text-xs">
-                                    No one going
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Buttons (Right) -->
+                <!-- Header & Action Buttons -->
+                <div class="mb-8 flex items-center justify-between">
+                    <div>
+                        <h2
+                            class="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                            Upcoming Gigs
+                        </h2>
+                        <p class="mt-2 text-gray-400">
+                            Manage your upcoming performances and setlists
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <Button
+                            @click="openAddGigModal"
+                            class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200">
+                            <Plus class="mr-2 h-4 w-4" />
+                            Add New Gig
+                        </Button>
                         <div
-                            class="flex-shrink-0 flex items-center space-x-2 ml-4">
-                            <!-- Edit Gig Button -->
-                            <PrimaryButton
-                                @click.stop="openEditGigModal(gig)"
-                                class="bg-neutral-700 hover:bg-neutral-600 text-white p-2 rounded-lg"
-                                title="Edit Gig">
-                                <PencilIcon class="h-5 w-5" />
-                            </PrimaryButton>
-
-                            <!-- Generate Setlist Button -->
-                            <PrimaryButton @click.stop="openSetlistModal(gig)">
-                                Generate Setlist
-                            </PrimaryButton>
-
-                            <!-- Right arrow icon -->
-                            <svg
-                                class="h-5 w-5 text-neutral-400 ml-2"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
+                            class="flex items-center gap-2 rounded-lg bg-[#191919] p-1">
+                            <Button
+                                :variant="
+                                    viewMode === 'list' ? 'secondary' : 'ghost'
+                                "
+                                size="sm"
+                                @click="viewMode = 'list'"
+                                :class="`${
+                                    viewMode === 'list'
+                                        ? 'bg-emerald-500/20 text-emerald-400'
+                                        : 'text-gray-400 hover:text-white'
+                                } transition-all duration-200`">
+                                <List class="h-4 w-4" />
+                            </Button>
+                            <Button
+                                :variant="
+                                    viewMode === 'calendar'
+                                        ? 'secondary'
+                                        : 'ghost'
+                                "
+                                size="sm"
+                                @click="viewMode = 'calendar'"
+                                :class="`${
+                                    viewMode === 'calendar'
+                                        ? 'bg-emerald-500/20 text-emerald-400'
+                                        : 'text-gray-400 hover:text-white'
+                                } transition-all duration-200`">
+                                <CalendarDays class="h-4 w-4" />
+                            </Button>
                         </div>
                     </div>
                 </div>
+
+                <!-- Content Area (List or Calendar) -->
+                <Transition name="fade" mode="out-in">
+                    <div v-if="viewMode === 'list'">
+                        <div
+                            v-if="!hasGigs"
+                            class="rounded-lg bg-neutral-800 p-6 text-center shadow-sm overflow-hidden">
+                            <h3 class="mb-4 text-xl font-semibold text-white">
+                                No Upcoming Gigs Yet!
+                            </h3>
+                            <Button
+                                @click="openAddGigModal"
+                                class="mx-auto flex items-center bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200">
+                                <Plus class="mr-2 h-4 w-4" />
+                                Add New Gig
+                            </Button>
+                        </div>
+                        <div v-else class="grid gap-6">
+                            <Card
+                                v-for="(gig, index) in processedGigs"
+                                :key="gig.id"
+                                :class="`bg-[#191919] border-gray-600 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 group cursor-pointer`"
+                                @click="openGigDetailModal(gig)">
+                                <CardContent class="p-6">
+                                    <div
+                                        class="flex items-center justify-between">
+                                        <div class="flex items-center gap-4">
+                                            <Avatar
+                                                class="h-16 w-16 ring-2 ring-gray-600 group-hover:ring-emerald-500/50 transition-all duration-300">
+                                                <AvatarImage
+                                                    v-if="gig.artist_image_url"
+                                                    :src="gig.artist_image_url"
+                                                    :alt="
+                                                        gig.artist_band_name
+                                                    " />
+                                                <AvatarFallback
+                                                    v-else
+                                                    class="bg-gradient-to-r from-gray-700 to-gray-600 text-white text-lg">
+                                                    {{
+                                                        getAvatarFallback(
+                                                            gig.artist_band_name
+                                                        )
+                                                    }}
+                                                </AvatarFallback>
+                                            </Avatar>
+
+                                            <div class="space-y-2">
+                                                <h3
+                                                    class="text-xl font-semibold text-white group-hover:text-emerald-400 transition-colors">
+                                                    {{ gig.artist_band_name }}
+                                                </h3>
+
+                                                <div
+                                                    class="flex items-center gap-4 text-sm text-gray-400">
+                                                    <div
+                                                        class="flex items-center gap-2">
+                                                        <MapPin
+                                                            class="h-4 w-4" />
+                                                        <span>
+                                                            {{ gig.venue }}
+                                                        </span>
+                                                    </div>
+                                                    <div
+                                                        class="flex items-center gap-2">
+                                                        <Calendar
+                                                            class="h-4 w-4" />
+                                                        <span>
+                                                            {{
+                                                                formatDateTime(
+                                                                    gig.gig_date_time
+                                                                )
+                                                            }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center gap-2">
+                                                    <span
+                                                        class="text-sm text-gray-500">
+                                                        Support:
+                                                    </span>
+                                                    <span
+                                                        v-if="
+                                                            (Array.isArray(
+                                                                gig.support_acts
+                                                            )
+                                                                ? gig.support_acts
+                                                                : []
+                                                            ).length > 0
+                                                        "
+                                                        class="text-sm text-gray-300">
+                                                        {{
+                                                            (Array.isArray(
+                                                                gig.support_acts
+                                                            )
+                                                                ? gig.support_acts
+                                                                : []
+                                                            ).join(", ")
+                                                        }}
+                                                    </span>
+                                                    <span
+                                                        v-else
+                                                        class="text-sm text-gray-400">
+                                                        None
+                                                    </span>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center gap-2">
+                                                    <span
+                                                        class="text-sm text-gray-500">
+                                                        Attending with:
+                                                    </span>
+                                                    <div class="flex gap-2">
+                                                        <Badge
+                                                            v-if="
+                                                                (Array.isArray(
+                                                                    gig.people_attending
+                                                                )
+                                                                    ? gig.people_attending
+                                                                    : []
+                                                                ).length > 0
+                                                            "
+                                                            v-for="person in gig.people_attending"
+                                                            :key="person"
+                                                            variant="secondary"
+                                                            class="bg-gray-700 text-gray-300 hover:bg-emerald-500/20 hover:text-emerald-400 transition-colors">
+                                                            {{ person }}
+                                                        </Badge>
+                                                        <span
+                                                            v-else
+                                                            class="text-sm text-gray-500">
+                                                            No one
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center gap-3">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                @click.stop="
+                                                    openEditGigModal(gig)
+                                                "
+                                                class="text-gray-400 hover:text-white hover:bg-gray-700 transition-all duration-200">
+                                                <Edit class="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                @click.stop="
+                                                    gig.setlist
+                                                        ? router.visit(
+                                                              route(
+                                                                  'setlists.show',
+                                                                  gig.setlist.id
+                                                              )
+                                                          )
+                                                        : openSetlistModal(gig)
+                                                "
+                                                class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200">
+                                                <Eye
+                                                    v-if="gig.setlist"
+                                                    class="h-4 w-4 mr-2" />
+                                                <span v-if="gig.setlist">
+                                                    View Setlist
+                                                </span>
+                                                <span v-else>
+                                                    Generate Setlist
+                                                </span>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                    <div v-else-if="viewMode === 'calendar'">
+                        <!-- Calendar View Placeholder for Upcoming Gigs -->
+                        <Card class="bg-[#191919] border-gray-600">
+                            <CardHeader>
+                                <CardTitle class="text-white">
+                                    Calendar View
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div class="text-center py-8 text-gray-400">
+                                    <Calendar
+                                        class="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                    <p>
+                                        Calendar view for upcoming gigs is
+                                        coming soon!
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </Transition>
             </div>
         </div>
 
-        <!-- Add New Gig Modal -->
+        <!-- Modals -->
         <GigFormModal :show="showAddGigModal" @close="closeAddGigModal" />
-
-        <!-- Edit Gig Modal -->
         <GigFormModal
             :show="showEditGigModal"
             :gig="selectedGigForEdit"
             @close="closeEditGigModal" />
-
-        <!-- Setlist Generator Modal -->
         <SetlistGeneratorModal
             :show="showSetlistModal"
             :gig="selectedGigForSetlist"
             @close="closeSetlistModal" />
-
-        <!-- Gig Detail Modal -->
         <GigDetailModal
             :show="showGigDetailModal"
             :gig="selectedGigForDetail"

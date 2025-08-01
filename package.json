@@ -23,6 +23,14 @@
     "dependencies": {
         "@heroicons/vue": "^2.2.0",
         "@johmun/vue-tags-input": "^2.1.0",
-        "reka-ui": "^2.4.1"
+        "@tailwindcss/container-queries": "^0.1.1",
+        "@tailwindcss/typography": "^0.5.16",
+        "@vueuse/motion": "^3.0.3",
+        "clsx": "^2.1.1",
+        "lucide-vue-next": "^0.536.0",
+        "radix-vue": "^1.9.17",
+        "reka-ui": "^2.4.1",
+        "tailwind-merge": "^3.3.1",
+        "tailwindcss-animate": "^1.0.7"
     }
 }

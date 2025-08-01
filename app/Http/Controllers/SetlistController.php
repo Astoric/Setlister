@@ -21,7 +21,13 @@ class SetlistController extends Controller
     {
         $setlists = Auth::user()->setlists()
             ->orderByDesc('gig_date')
+            ->with('gig')
             ->get();
+
+        $setlists->each(function ($setlist) {
+            $setlist->total_duration_display = $this->calculateTotalDuration($setlist);
+            $setlist->last_modified_display = $setlist->updated_at ? $setlist->updated_at->diffForHumans() : 'N/A';
+        });
 
         return Inertia::render('SavedSetlists', [
             'setlists' => $setlists,
@@ -125,7 +131,10 @@ class SetlistController extends Controller
             'gig_date' => ['required', 'date'],
             'setlist_url' => ['nullable', 'url'],
             'sets' => ['required', 'array'],
-            'sets.*.name' => ['required', 'string'],
+            'sets.*.name' => 'required|string',
+            'sets.*.songs.*.name' => ['required', 'string'],
+            'sets.*.songs.*.spotify_id' => ['nullable', 'string'],
+            'sets.*.songs.*.duration_ms' => ['nullable', 'numeric'],
         ]);
 
         $gig = Gig::findOrFail($request->gig_id);
@@ -157,6 +166,11 @@ class SetlistController extends Controller
         if ($setlist->user_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
+
+        $setlist->load('gig');
+
+        $setlist->total_duration_display = $this->calculateTotalDuration($setlist);
+        $setlist->last_modified_display = $setlist->updated_at ? $setlist->updated_at->diffForHumans() : 'N/A';
 
         return Inertia::render('SetlistDetail', [
             'setlist' => $setlist,
@@ -325,5 +339,57 @@ class SetlistController extends Controller
 
             return redirect()->back()->withErrors(['message' => 'An unexpected error occurred while deleting the setlist.']);
         }
+    }
+
+    /**
+     * Fetches Spotify track details (ID and duration) for a given track name and artist.
+     * This method acts as a proxy for the frontend to get track details without direct Spotify API calls.
+     */
+    public function fetchSpotifyTrackDetails(Request $request)
+    {
+        $request->validate([
+            'trackName' => ['required', 'string', 'max:255'],
+            'artistName' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $trackName = $request->input('trackName');
+        $artistName = $request->input('artistName');
+
+        $trackDetails = SpotifyAuthController::searchSpotifyTrackWithDetails($trackName, $artistName);
+
+        if (!$trackDetails) {
+            // Log for debugging why it failed (e.g., Spotify token issue, track not found)
+            \Log::info("Spotify track details not found for '{$trackName}' by '{$artistName}'");
+            // Return a 200 OK with null data, or a 404 if more strict, but 200 is fine for "not found"
+            return response()->json(null, 200); 
+        }
+
+        return response()->json($trackDetails, 200);
+    }
+
+    /**
+     * Helper method to calculate total duration of a setlist.
+     */
+    protected function calculateTotalDuration(Setlist $setlist): string
+    {
+        $totalDurationMs = 0;
+        if (is_array($setlist->sets)) {
+            foreach ($setlist->sets as $set) {
+                if (isset($set['songs']) && is_array($set['songs'])) {
+                    foreach ($set['songs'] as $song) {
+                        if (isset($song['duration_ms']) && is_numeric($song['duration_ms'])) {
+                            $totalDurationMs += $song['duration_ms'];
+                        }
+                    }
+                }
+            }
+        }
+
+        $totalSeconds = floor($totalDurationMs / 1000);
+        $totalMinutes = floor($totalSeconds / 60);
+        $totalHours = floor($totalMinutes / 60);
+        $remainingMinutes = $totalMinutes % 60;
+
+        return "{$totalHours}h {$remainingMinutes}m";
     }
 }

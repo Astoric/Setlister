@@ -79,6 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/saved-setlists', [SetlistController::class, 'index'])->name('saved-setlists');
     Route::get('/setlists/search', [SetlistController::class, 'search'])->name('setlists.search');
     Route::post('/setlists', [SetlistController::class, 'store'])->name('setlists.store');
+     Route::get('/setlists/track-details', [SetlistController::class, 'fetchSpotifyTrackDetails'])->name('setlists.fetch-track-details');
     Route::get('/setlists/{setlistId}/details', [SetlistController::class, 'fetchDetailedSetlist'])->name('setlists.details');
     Route::get('/setlists/{setlist}', [SetlistController::class, 'show'])->name('setlists.show');
     Route::delete('/setlists/{setlist}', [SetlistController::class, 'destroy'])->name('setlists.destroy');
@@ -97,6 +98,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::patch('/profile/spotify-app-credentials', [ProfileController::class, 'updateSpotifyAppCredentials'])->name('profile.update-spotify-app-credentials');
+
+    /**
+     * Statistics Page
+     */
+    Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
 });
 
 /**
