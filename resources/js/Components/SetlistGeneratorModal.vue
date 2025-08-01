@@ -13,7 +13,7 @@ import DialogContent from "@/Components/ui/DialogContent.vue";
 import DialogDescription from "@/Components/ui/DialogDescription.vue";
 import DialogHeader from "@/Components/ui/DialogHeader.vue";
 import DialogTitle from "@/Components/ui/DialogTitle.vue";
-import Input from "@/Components/ui/Input.vue"; // If used in search filters
+import Input from "@/Components/ui/Input.vue";
 import {
     Calendar,
     Download,
@@ -22,17 +22,17 @@ import {
     Music,
     X,
     Check,
-} from "lucide-vue-next"; // Lucide icons
+} from "lucide-vue-next";
 
 const props = defineProps({
     show: { type: Boolean },
-    gig: { type: Object }, // The gig object for which we are generating a setlist
+    gig: { type: Object },
 });
 
 const emit = defineEmits(["close"]);
 
 const isLoading = ref(false);
-const ObtainingData = ref(false); // Used for "Pulling data from Spotify" spinner
+const ObtainingData = ref(false);
 const searchError = ref(null);
 const setlistResults = ref([]);
 const selectedSetlist = ref(null);
@@ -44,7 +44,7 @@ const form = useForm({
     venue_name: "",
     gig_date: "",
     setlist_url: "",
-    sets: [],
+    sets: [], // This will contain one object: [{ name: 'Main Set', songs: [...] }]
 });
 
 /**
@@ -89,18 +89,12 @@ const searchSetlists = async (artistName, gigDateTime) => {
         });
         setlistResults.value = response.data.setlists;
 
-        // --- NEW/MODIFIED AUTO-SELECTION LOGIC ---
-        // Find if any result is an exact date match (flagged by backend)
-        const exactMatchResult = setlistResults.value.find(
-            (setlist) => setlist.is_exact_date_match
-        );
-
-        // If there's exactly one result AND it's an exact match, auto-select it.
-        // Or if there's only one result period (and no error).
-        if (setlistResults.value.length === 1 && exactMatchResult) {
-            await selectSetlist(exactMatchResult); // Await selection to update UI state
+        if (
+            setlistResults.value.length === 1 &&
+            setlistResults.value[0].is_exact_date_match
+        ) {
+            await selectSetlist(setlistResults.value[0]);
         }
-        // --- END NEW/MODIFIED ---
     } catch (error) {
         console.error("Error searching Setlist.fm:", error);
         searchError.value =
@@ -123,14 +117,15 @@ const selectSetlist = async (setlist) => {
     form.gig_date = setlist.event_date.split(".").reverse().join("-");
     form.setlist_url = setlist.url;
 
-    ObtainingData.value = true; // Activate "Pulling data from Spotify" spinner
+    ObtainingData.value = true;
     try {
         const setlistDetailResponse = await axios.get(
             route("setlists.details", { setlistId: setlist.setlist_id })
         );
         const fullSetlistData = setlistDetailResponse.data;
 
-        let songDetailPromises = [];
+        const songDetailPromises = [];
+        let allFilteredSongs = []; // Collect all filtered songs here first
 
         if (fullSetlistData.sets && fullSetlistData.sets.set) {
             fullSetlistData.sets.set.forEach((set) => {
@@ -155,6 +150,7 @@ const selectSetlist = async (setlist) => {
                                 )
                         )
                         .forEach((song) => {
+                            allFilteredSongs.push(song); // Collect for later processing
                             songDetailPromises.push(
                                 axios
                                     .get(
@@ -194,52 +190,29 @@ const selectSetlist = async (setlist) => {
 
         const resolvedSongDetails = await Promise.all(songDetailPromises);
 
-        let currentSongDetailIndex = 0;
-        let finalParsedSets = [];
-
-        if (fullSetlistData.sets && fullSetlistData.sets.set) {
-            fullSetlistData.sets.set.forEach((set) => {
-                let songsWithDetails = [];
-                if (set.song) {
-                    set.song
-                        .filter(
-                            (song) =>
-                                !song.tape &&
-                                song.name &&
-                                song.name.trim().length > 0 &&
-                                ![
-                                    "Intro",
-                                    "Outro",
-                                    "Interlude",
-                                    "Speech",
-                                    "Taped",
-                                    "Snippet",
-                                ].some((excluded) =>
-                                    song.name
-                                        .toLowerCase()
-                                        .includes(excluded.toLowerCase())
-                                )
-                        )
-                        .forEach((song) => {
-                            const detail =
-                                resolvedSongDetails[currentSongDetailIndex];
-                            songsWithDetails.push({
-                                name: song.name,
-                                spotify_id: detail?.id || null,
-                                duration_ms: detail?.duration_ms || null,
-                            });
-                            currentSongDetailIndex++;
-                        });
-                }
-                if (songsWithDetails.length > 0) {
-                    finalParsedSets.push({
-                        name: set.name || "Main Set",
-                        songs: songsWithDetails,
-                    });
-                }
+        let finalSongs = [];
+        // Map resolved details back to allFilteredSongs in order
+        allFilteredSongs.forEach((song, index) => {
+            const detail = resolvedSongDetails[index];
+            finalSongs.push({
+                name: song.name,
+                spotify_id: detail?.spotify_id || null,
+                duration_ms: detail?.duration_ms || null,
             });
+        });
+
+        // --- MODIFIED: Assign all songs to a single "Main Set" ---
+        if (finalSongs.length > 0) {
+            form.sets = [
+                {
+                    name: "Main Set", // Always one main set
+                    songs: finalSongs,
+                },
+            ];
+        } else {
+            form.sets = []; // No songs, no sets
         }
-        form.sets = finalParsedSets;
+        // --- END MODIFIED ---
     } catch (error) {
         console.error(
             "Error fetching detailed setlist or Spotify details:",
@@ -249,7 +222,7 @@ const selectSetlist = async (setlist) => {
             error.response?.data?.error ||
             "Failed to fetch detailed setlist data. Check console for details.";
     } finally {
-        ObtainingData.value = false; // Deactivate spinner
+        ObtainingData.value = false;
     }
 };
 
@@ -317,7 +290,7 @@ const formatDuration = (ms) => {
                     <p class="text-gray-400">Searching Setlist.fm...</p>
                 </div>
 
-                <!-- NEW Loading State (Pulling data from Spotify) -->
+                <!-- Loading State (Pulling data from Spotify) -->
                 <div v-else-if="ObtainingData" class="text-center py-8">
                     <div
                         class="animate-spin h-12 w-12 rounded-full border-b-2 border-emerald-500 mx-auto mb-4"></div>
@@ -401,13 +374,10 @@ const formatDuration = (ms) => {
                 <div v-else>
                     <Card class="bg-[#191919] border-gray-600">
                         <CardContent class="p-6">
-                            <h3 class="text-xl font-semibold text-white mb-4">
-                                Confirm & Save Setlist
-                            </h3>
                             <div class="space-y-2">
-                                <p class="text-lg font-bold text-emerald-400">
+                                <h3 class="text-xl font-bold text-emerald-400">
                                     {{ selectedSetlist.artist_name }}
-                                </p>
+                                </h3>
                                 <p class="text-gray-300">
                                     Venue: {{ selectedSetlist.venue_name }}
                                 </p>
@@ -426,10 +396,6 @@ const formatDuration = (ms) => {
                                         v-for="(setObj, setIndex) in form.sets"
                                         :key="setObj.name"
                                         class="mb-4">
-                                        <p
-                                            class="text-gray-300 font-medium mb-1">
-                                            {{ setObj.name || "Main Set" }}
-                                        </p>
                                         <ul class="list-none space-y-1 pl-4">
                                             <li
                                                 v-for="(
@@ -440,7 +406,7 @@ const formatDuration = (ms) => {
                                                 <Music
                                                     class="h-4 w-4 mr-2 text-emerald-400" />
                                                 {{ song.name }}
-                                                <!-- NEW: Display Song Duration -->
+                                                <!-- Display Song Duration -->
                                                 <span
                                                     v-if="song.duration_ms"
                                                     class="ml-auto text-gray-500">
@@ -480,7 +446,7 @@ const formatDuration = (ms) => {
                                     form.processing,
                             }"
                             :disabled="form.processing"
-                            class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200">
+                            class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200">
                             Save Setlist
                         </Button>
                     </div>
