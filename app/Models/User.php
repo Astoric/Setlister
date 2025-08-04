@@ -66,12 +66,12 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the setlists for the user.
+     * Remove the setlists relationship (it's no longer a separate table)
+     * public function setlists(): HasMany // NEW method
+     * {
+     *    return $this->hasMany(Setlist::class);
+     * }
      */
-    public function setlists(): HasMany // NEW method
-    {
-        return $this->hasMany(Setlist::class);
-    }
 
     /**
      * Accessor to get the Spotify profile picture URL.

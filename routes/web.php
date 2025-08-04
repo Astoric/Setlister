@@ -72,18 +72,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/gigs', [GigController::class, 'store'])->name('gigs.store');
     Route::patch('/gigs/{gig}', [GigController::class, 'update'])->name('gigs.update');
     Route::delete('/gigs/{gig}', [GigController::class, 'destroy'])->name('gigs.destroy');
+    Route::get('/gigs/{gig}', [GigController::class, 'show'])->name('gigs.show');
+    Route::post('/gigs/{gig}/generate-spotify-playlist', [SetlistController::class, 'generateSpotifyPlaylist'])->name('setlists.generate-spotify-playlist');
 
     /**
-     * Setlist Management
+     * Setlist Management (updated to reflect denormalization)
      */
-    Route::get('/saved-setlists', [SetlistController::class, 'index'])->name('saved-setlists');
     Route::get('/setlists/search', [SetlistController::class, 'search'])->name('setlists.search');
-    Route::post('/setlists', [SetlistController::class, 'store'])->name('setlists.store');
-     Route::get('/setlists/track-details', [SetlistController::class, 'fetchSpotifyTrackDetails'])->name('setlists.fetch-track-details');
+    Route::post('/setlists/save-to-gig', [SetlistController::class, 'saveSetlistToGig'])->name('setlists.save-to-gig');
+    Route::get('/setlists/track-details', [SetlistController::class, 'fetchSpotifyTrackDetails'])->name('setlists.fetch-track-details');
     Route::get('/setlists/{setlistId}/details', [SetlistController::class, 'fetchDetailedSetlist'])->name('setlists.details');
-    Route::get('/setlists/{setlist}', [SetlistController::class, 'show'])->name('setlists.show');
-    Route::delete('/setlists/{setlist}', [SetlistController::class, 'destroy'])->name('setlists.destroy');
-    Route::post('/setlists/{setlist}/generate-spotify-playlist', [SetlistController::class, 'generateSpotifyPlaylist'])->name('setlists.generate-spotify-playlist');
 
     /**
      * Spotify Authentication

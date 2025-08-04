@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+// Remove HasOne if it's there
+// use Illuminate\Database\Eloquent\Relations\HasOne; // Remove this line
 
 class Gig extends Model
 {
@@ -24,6 +25,10 @@ class Gig extends Model
         'people_attending',
         'user_id',
         'artist_image_url',
+        // Add new fillable attributes
+        'setlist_id_setlistfm',
+        'setlist_url',
+        'sets',
     ];
 
     /**
@@ -35,6 +40,8 @@ class Gig extends Model
         'gig_date_time' => 'datetime',
         'support_acts' => 'array',
         'people_attending' => 'array',
+        // Cast 'sets' to array
+        'sets' => 'array',
     ];
 
     /**
@@ -45,12 +52,8 @@ class Gig extends Model
         return $this->belongsTo(User::class);
     }
 
-
     /**
-     * Get the setlist associated with the gig.
+     * Remove the setlist relationship as it's denormalized now.
+     * public function setlist(): HasOne { return $this->hasOne(Setlist::class); }
      */
-    public function setlist(): HasOne
-    {
-        return $this->hasOne(Setlist::class);
-    }
 }

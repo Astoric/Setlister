@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Gig;
 use App\Http\Controllers\SpotifyAuthController;
+use App\Jobs\GenerateGigSetlist; // Import the new Job
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class GigController extends Controller
 {
@@ -19,7 +21,6 @@ class GigController extends Controller
         $gigs = Auth::user()->gigs()
             ->where('gig_date_time', '>=', now())
             ->orderBy('gig_date_time')
-            ->with('setlist')
             ->get();
 
         $gigs->each(function ($gig) {
@@ -37,15 +38,21 @@ class GigController extends Controller
      */
     public function pastGigs()
     {
-        $gigs = Auth::user()->gigs()
+        /** @var \App\Models\User $user */
+        $user = Auth::user(); // Get the authenticated user here
+
+        $gigs = $user->gigs()
             ->where('gig_date_time', '<', now())
             ->orderByDesc('gig_date_time')
-            ->with('setlist')
             ->get();
 
-        $gigs->each(function ($gig) {
+        // Dispatch jobs for past gigs that do not have setlist data
+        $gigs->each(function ($gig) use ($user) {
             $gig->support_acts = is_string($gig->support_acts) ? json_decode($gig->support_acts, true) : $gig->support_acts;
             $gig->people_attending = is_string($gig->people_attending) ? json_decode($gig->people_attending, true) : $gig->people_attending;
+            if (is_null($gig->sets) || (is_array($gig->sets) && empty($gig->sets))) { // Ensure it's truly null or empty array
+                GenerateGigSetlist::dispatch($gig, $user);
+            }
         });
 
         return Inertia::render('PastGigs', [
@@ -79,7 +86,6 @@ class GigController extends Controller
             $gigs = Auth::user()->gigs()
                 ->where('gig_date_time', '>=', now())
                 ->orderBy('gig_date_time')
-                ->with('setlist')
                 ->get();
 
             $gigs->each(function ($gig) {
@@ -101,6 +107,27 @@ class GigController extends Controller
     }
 
     /**
+     * Display the specified gig with its setlist details.
+     */
+    public function show(Gig $gig)
+    {
+        if ($gig->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // The Gig model already casts 'sets' as an array, so it should be available directly.
+        // No need to load 'setlist' relationship anymore.
+
+        // If you need any derived properties like total duration for initial load,
+        // you might add an accessor to the Gig model or calculate it here.
+        // However, SetlistDetail.vue already calculates it client-side.
+
+        return Inertia::render('SetlistDetail', [
+            'gig' => $gig, // Pass the entire gig object
+        ]);
+    }
+
+    /**
      * Update the specified gig in storage.
      */
     public function update(Request $request, Gig $gig)
@@ -116,6 +143,10 @@ class GigController extends Controller
                 'gig_date_time' => ['required', 'date'],
                 'support_acts' => ['nullable', 'json'],
                 'people_attending' => ['nullable', 'json'],
+                // Allow setlist fields to be updated if coming from SetlistGeneratorModal's direct save
+                'setlist_id_setlistfm' => ['nullable', 'string'],
+                'setlist_url' => ['nullable', 'url'],
+                'sets' => ['nullable', 'array'],
             ]);
 
             if ($gig->artist_band_name !== $validated['artist_band_name'] || is_null($gig->artist_image_url)) {
@@ -127,10 +158,6 @@ class GigController extends Controller
                 }
             }
 
-            $gig->update($validated);
-
-            session()->flash('success', 'Gig updated successfully!');
-
             $gigs = Auth::user()->gigs()
                 ->where('gig_date_time', '>=', now())
                 ->orderBy('gig_date_time')
@@ -141,9 +168,11 @@ class GigController extends Controller
                 $gig->people_attending = is_string($gig->people_attending) ? json_decode($gig->people_attending, true) : $gig->people_attending;
             });
 
-            $updatedGig = $gig->fresh();
+            $gig->update($validated);
 
-            $gigs = $gigs->with('setlist')->get();
+            session()->flash('success', 'Gig updated successfully!');
+
+            $updatedGig = $gig->fresh();
 
             if ($updatedGig->gig_date_time->isFuture()) {
                 return redirect()->route('dashboard');
@@ -183,4 +212,6 @@ class GigController extends Controller
             return redirect()->back()->withErrors(['message' => 'An unexpected error occurred while deleting the gig.']);
         }
     }
+
+    // Removed the protected function autoGenerateSetlistsForPastGigs as its logic is now in the Job.
 }

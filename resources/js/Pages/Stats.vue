@@ -32,6 +32,7 @@ import {
     Calendar,
     TrendingUp,
     Award,
+    Drum,
 } from "lucide-vue-next";
 
 const props = defineProps({
@@ -189,8 +190,28 @@ const renderStars = (rating) => {
                     </Card>
                 </div>
 
-                <!-- Top Venue & Top Concert Buddy Grid -->
-                <div class="grid gap-6 md:grid-cols-2 mb-8">
+                <!-- Top Band, Top Venue & Top Concert Buddy Grid -->
+                <div class="grid gap-6 md:grid-cols-3 mb-8">
+                    <!-- Top Bans Card -->
+                    <Card
+                        class="bg-[#191919] border-gray-600 hover:border-emerald-500/50 transition-all duration-300">
+                        <CardHeader>
+                            <CardTitle
+                                class="text-lg font-semibold text-white flex items-center gap-2">
+                                <Drum class="h-5 w-5 text-emerald-400" />
+                                Top Band
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div class="text-xl font-semibold text-emerald-400">
+                                {{ stats.topBand }}
+                            </div>
+                            <p class="text-sm text-gray-400 mt-2">
+                                The band you've seen live the most
+                            </p>
+                        </CardContent>
+                    </Card>
+
                     <!-- Top Venue Card -->
                     <Card
                         class="bg-[#191919] border-gray-600 hover:border-emerald-500/50 transition-all duration-300">

@@ -32,8 +32,10 @@ import {
 } from "lucide-vue-next";
 
 const props = defineProps({
-    setlist: {
+    gig: {
+        // NOW RECEIVES GIG OBJECT INSTEAD OF SETLIST
         type: Object,
+        required: true,
     },
 });
 
@@ -60,7 +62,6 @@ const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString("en-US", options);
 };
 
-// NEW: Helper to format duration in milliseconds to MM:SS or HH:MM:SS.
 const formatDuration = (ms) => {
     if (ms === null || isNaN(ms)) return "N/A";
     const totalSeconds = Math.floor(ms / 1000);
@@ -80,7 +81,8 @@ const generatePlaylist = () => {
         pagePropsFlash.error = null;
     }
 
-    router.post(route("setlists.generate-spotify-playlist", props.setlist.id), {
+    router.post(route("setlists.generate-spotify-playlist", props.gig.id), {
+        // PASS GIG ID
         onStart: () => {},
         onFinish: () => {
             isGenerating.value = false;
@@ -111,25 +113,46 @@ const confirmSetlistDeletion = () => {
 };
 
 const deleteSetlist = () => {
-    router.delete(route("setlists.destroy", props.setlist.id), {
-        onSuccess: () => {
-            // Inertia::location handles redirect to saved-setlists
+    // This will send a request to clear the setlist data on the gig
+    router.patch(
+        route("gigs.update", props.gig.id),
+        {
+            setlist_id_setlistfm: null,
+            setlist_url: null,
+            sets: [],
+            // Re-include other gig fields if they are required by the Gig update validation
+            // Otherwise, Laravel's partial update will just update these specific fields.
+            artist_band_name: props.gig.artist_band_name,
+            venue: props.gig.venue,
+            gig_date_time: props.gig.gig_date_time,
+            support_acts: props.gig.support_acts,
+            people_attending: props.gig.people_attending,
         },
-        onError: () => {
-            // Error handling for deletion
-        },
-        onFinish: () => {
-            confirmingSetlistDeletion.value = false;
-        },
-    });
+        {
+            onSuccess: () => {
+                // If successful, redirect to appropriate gig list
+                if (new Date(props.gig.gig_date_time) < new Date()) {
+                    router.visit(route("past-gigs"));
+                } else {
+                    router.visit(route("dashboard"));
+                }
+            },
+            onError: (errors) => {
+                console.error("Error deleting setlist data:", errors);
+            },
+            onFinish: () => {
+                confirmingSetlistDeletion.value = false;
+            },
+        }
+    );
 };
 
-// NEW: Computed property to get all songs in order with a global index
 const allSongsWithGlobalIndex = computed(() => {
     let globalIndex = 0;
     const songs = [];
-    if (props.setlist && Array.isArray(props.setlist.sets)) {
-        props.setlist.sets.forEach((setObj) => {
+    if (props.gig && Array.isArray(props.gig.sets)) {
+        // Use props.gig.sets
+        props.gig.sets.forEach((setObj) => {
             if (setObj.songs && Array.isArray(setObj.songs)) {
                 setObj.songs.forEach((song) => {
                     songs.push({
@@ -144,11 +167,12 @@ const allSongsWithGlobalIndex = computed(() => {
     return songs;
 });
 
-// NEW: Helper to find a song by its name to use with the global index logic below
 const findSongByReference = (setIndex, songIndexInSet) => {
     let currentGlobalIndex = 0;
-    for (let sIdx = 0; sIdx < props.setlist.sets.length; sIdx++) {
-        const currentSet = props.setlist.sets[sIdx];
+    if (!props.gig || !Array.isArray(props.gig.sets)) return -1;
+
+    for (let sIdx = 0; sIdx < props.gig.sets.length; sIdx++) {
+        const currentSet = props.gig.sets[sIdx];
         if (currentSet.songs && Array.isArray(currentSet.songs)) {
             for (
                 let songIdx = 0;
@@ -164,15 +188,47 @@ const findSongByReference = (setIndex, songIndexInSet) => {
     }
     return -1; // Not found
 };
+
+// Calculate total duration for display
+const totalDurationDisplay = computed(() => {
+    let totalDurationMs = 0;
+    if (props.gig && Array.isArray(props.gig.sets)) {
+        props.gig.sets.forEach((set) => {
+            if (set.songs && Array.isArray(set.songs)) {
+                set.songs.forEach((song) => {
+                    if (
+                        song.duration_ms &&
+                        typeof song.duration_ms === "number"
+                    ) {
+                        totalDurationMs += song.duration_ms;
+                    }
+                });
+            }
+        });
+    }
+
+    const totalSeconds = Math.floor(totalDurationMs / 1000);
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+
+    return `${totalHours}h ${remainingMinutes}m`;
+});
+
+// Last modified display (assuming updated_at is on gig now)
+const lastModifiedDisplay = computed(() => {
+    return props.gig.updated_at
+        ? new Date(props.gig.updated_at).toLocaleDateString()
+        : "N/A"; // Or use diffForHumans if Carbon is passed
+});
 </script>
 
 <template>
-    <Head :title="`${setlist.artist_name} Setlist`" />
+    <Head :title="`${gig.artist_band_name} Setlist`" />
 
     <AuthenticatedLayout>
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <!-- Flash Messages -->
                 <div
                     v-if="flashSuccess"
                     class="mb-4 rounded-lg bg-accent-500 px-4 py-3 shadow-md text-neutral-900"
@@ -183,7 +239,6 @@ const findSongByReference = (setIndex, songIndexInSet) => {
                     {{ flashError }}
                 </div>
 
-                <!-- Setlist Header -->
                 <div class="border-b border-gray-700 p-6">
                     <div class="mb-6 flex items-center justify-between">
                         <Button
@@ -191,31 +246,23 @@ const findSongByReference = (setIndex, songIndexInSet) => {
                             as-child
                             class="gap-2 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white">
                             <Link
-                                :href="route('saved-setlists')"
+                                :href="
+                                    gig.gig_date_time &&
+                                    new Date(gig.gig_date_time) < new Date()
+                                        ? route('past-gigs')
+                                        : route('dashboard')
+                                "
                                 class="flex items-center gap-2">
                                 <ArrowLeft class="h-4 w-4" />
-                                Back to Saved Setlists
+                                Back to Gigs
                             </Link>
                         </Button>
 
                         <div class="flex items-center gap-3">
                             <Button
-                                variant="ghost"
-                                size="sm"
-                                class="text-gray-400 hover:bg-gray-700 hover:text-white transition-all duration-200">
-                                <Heart class="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                class="text-gray-400 hover:bg-gray-700 hover:text-white transition-all duration-200">
-                                <Share2 class="h-4 w-4" />
-                            </Button>
-                            <!-- Delete Setlist Button -->
-                            <Button
                                 @click="confirmSetlistDeletion"
                                 class="bg-red-600 hover:bg-red-700 p-2 text-white transition-all duration-200 rounded-lg"
-                                title="Delete Setlist">
+                                title="Clear Setlist">
                                 <Trash2 class="h-5 w-5" />
                             </Button>
                             <Button
@@ -242,37 +289,37 @@ const findSongByReference = (setIndex, songIndexInSet) => {
                     <div class="flex items-center gap-6">
                         <Avatar class="h-20 w-20 ring-2 ring-emerald-500/30">
                             <AvatarImage
-                                v-if="setlist.gig?.artist_image_url"
-                                :src="setlist.gig.artist_image_url"
-                                :alt="setlist.gig.artist_name" />
+                                v-if="gig.artist_image_url"
+                                :src="gig.artist_image_url"
+                                :alt="gig.artist_band_name" />
                             <AvatarFallback
                                 v-else
                                 class="bg-gradient-to-r from-gray-700 to-gray-600 text-2xl text-white">
-                                {{ getAvatarFallback(setlist.artist_name) }}
+                                {{ getAvatarFallback(gig.artist_band_name) }}
                             </AvatarFallback>
                         </Avatar>
 
                         <div>
                             <h1
                                 class="mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-4xl font-bold text-transparent">
-                                {{ setlist.artist_name }}
+                                {{ gig.artist_band_name }}
                             </h1>
                             <div
                                 class="mb-3 flex items-center gap-4 text-gray-400">
                                 <div class="flex items-center gap-2">
                                     <MapPin class="h-4 w-4" />
-                                    <span>{{ setlist.venue_name }}</span>
+                                    <span>{{ gig.venue }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <Calendar class="h-4 w-4" />
                                     <span>
-                                        {{ formatDate(setlist.gig_date) }}
+                                        {{ formatDate(gig.gig_date_time) }}
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <Clock class="h-4 w-4" />
                                     <span>
-                                        {{ setlist.total_duration_display }}
+                                        {{ totalDurationDisplay }}
                                     </span>
                                 </div>
                             </div>
@@ -280,10 +327,8 @@ const findSongByReference = (setIndex, songIndexInSet) => {
                     </div>
                 </div>
 
-                <!-- Setlist Content -->
                 <div class="p-6">
                     <div class="max-w-4xl">
-                        <!-- Main Set -->
                         <div class="mb-8">
                             <h2
                                 class="mb-6 text-2xl font-semibold text-emerald-400">
@@ -292,9 +337,7 @@ const findSongByReference = (setIndex, songIndexInSet) => {
                             <Card class="bg-[#191919] border-gray-600">
                                 <CardContent class="p-0">
                                     <div
-                                        v-for="(
-                                            setObj, setIndex
-                                        ) in setlist.sets"
+                                        v-for="(setObj, setIndex) in gig.sets"
                                         :key="setIndex">
                                         <div
                                             v-if="
@@ -313,14 +356,12 @@ const findSongByReference = (setIndex, songIndexInSet) => {
                                             :class="{
                                                 'border-b border-gray-700':
                                                     setIndex <
-                                                        setlist.sets.length -
-                                                            1 ||
+                                                        gig.sets.length - 1 ||
                                                     songIndex <
                                                         setObj.songs.length - 1,
                                             }">
                                             <div
                                                 class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-semibold text-emerald-400">
-                                                <!-- MODIFIED: Use calculated global index -->
                                                 {{
                                                     findSongByReference(
                                                         setIndex,
@@ -334,7 +375,6 @@ const findSongByReference = (setIndex, songIndexInSet) => {
                                                     {{ song.name }}
                                                 </p>
                                             </div>
-                                            <!-- Song Duration (from spotify_track_details on generation) -->
                                             <div
                                                 class="text-sm text-gray-500 transition-colors group-hover:text-gray-400">
                                                 {{
@@ -355,12 +395,11 @@ const findSongByReference = (setIndex, songIndexInSet) => {
                             </Card>
                         </div>
 
-                        <!-- Original Setlist.fm Link -->
                         <div
-                            v-if="setlist.setlist_url"
+                            v-if="gig.setlist_url"
                             class="mt-8 text-right text-sm text-gray-400">
                             <a
-                                :href="setlist.setlist_url"
+                                :href="gig.setlist_url"
                                 target="_blank"
                                 class="hover:underline">
                                 View original on Setlist.fm
@@ -372,7 +411,6 @@ const findSongByReference = (setIndex, songIndexInSet) => {
         </div>
     </AuthenticatedLayout>
 
-    <!-- Delete Confirmation Modal -->
     <Dialog
         :open="confirmingSetlistDeletion"
         @update:open="confirmingSetlistDeletion = $event"
@@ -381,11 +419,11 @@ const findSongByReference = (setIndex, songIndexInSet) => {
         <DialogContent class="bg-[#191919] border-gray-700 text-white max-w-sm">
             <DialogHeader>
                 <DialogTitle class="text-white">
-                    Are you sure you want to delete this setlist?
+                    Are you sure you want to remove the setlist from this gig?
                 </DialogTitle>
                 <DialogDescription class="text-gray-400">
-                    This action cannot be undone. This setlist will be
-                    permanently removed.
+                    This will clear the setlist data for this gig. You can
+                    generate it again later.
                 </DialogDescription>
             </DialogHeader>
             <div class="flex justify-end gap-3">
@@ -401,7 +439,7 @@ const findSongByReference = (setIndex, songIndexInSet) => {
                     :disabled="isGenerating"
                     variant="destructive"
                     class="bg-red-600 hover:bg-red-700 text-white transition-all duration-200">
-                    Delete
+                    Remove Setlist
                 </Button>
             </div>
         </DialogContent>

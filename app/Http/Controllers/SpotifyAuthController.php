@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\RequestException;
 
 class SpotifyAuthController extends Controller
 {
@@ -407,25 +408,22 @@ class SpotifyAuthController extends Controller
      * @param  string|null  $artistName
      * @return array|null Format: ['id' => 'spotify_id', 'duration_ms' => 123456] on success, null if not found or error.
      */
-    public static function searchSpotifyTrackWithDetails(string $trackName, ?string $artistName = null): ?array
+    public static function searchSpotifyTrackWithDetails(string $trackName, ?string $artistName = null, ?User $user = null): ?array
     {
-        /** @var User $user */
-        $user = Auth::user();
-
-        // Check for active Spotify connection
-        if (! $user || ! $user->spotify_access_token) {
-            \Log::warning('Spotify track detail search failed: User not connected to Spotify or no access token.');
+        // Use the passed $user instead of Auth::user()
+        if (!$user || !$user->spotify_access_token) {
+            \Log::warning('No user model or Spotify token provided to search for track details.');
             return null;
         }
 
-        // Check and refresh token if expired
+        // Check if token needs refreshing for the passed $user
         if (Carbon::now()->greaterThanOrEqualTo($user->spotify_token_expires_at)) {
-            $refreshed = self::refreshSpotifyToken();
-            if (! $refreshed) {
-                \Log::error('Failed to refresh Spotify token for track detail search for user '.$user->id);
+            $refreshed = static::refreshSpotifyTokenForUser($user); // <--- NEW STATIC METHOD
+            if (!$refreshed) {
+                \Log::error('Could not refresh Spotify token for user ID: ' . $user->id . ' during track search.');
                 return null;
             }
-            $user->refresh(); // Reload user model to get the new token
+            // User model will be refreshed by refreshSpotifyTokenForUser
         }
 
         $query = "track:\"{$trackName}\"";
@@ -434,86 +432,39 @@ class SpotifyAuthController extends Controller
         }
 
         try {
-            $response = Http::withToken($user->spotify_access_token)
+            $response = Http::withToken($user->spotify_access_token) // Use $user's token
                 ->get('https://api.spotify.com/v1/search', [
                     'q' => $query,
                     'type' => 'track',
-                    'limit' => 10, // Get a few results to pick the best match
+                    'limit' => 1,
                 ]);
 
             $response->throw();
 
             $data = $response->json();
 
-            if (empty($data['tracks']['items'])) {
-                return null; // No tracks found
-            }
-
-            $foundTracks = collect($data['tracks']['items']);
-
-            // Filter out obvious instrumental/karaoke versions
-            $filteredTracks = $foundTracks->filter(function ($item) {
-                $name = mb_strtolower($item['name']);
-                return ! str_contains($name, 'instrumental') &&
-                       ! str_contains($name, 'karaoke') &&
-                       ! str_contains($name, '(live)') &&
-                       ! str_contains($name, 'acapella');
-            });
-
-            if ($filteredTracks->isEmpty()) {
-                $filteredTracks = $foundTracks; // Fallback to original if all filtered out
-            }
-
-            $selectedTrack = null;
-            if ($artistName) {
-                // Prioritize exact artist match
-                $exactArtistMatches = $filteredTracks->filter(function ($item) use ($artistName) {
-                    foreach ($item['artists'] as $artist) {
-                        if (mb_strtolower($artist['name']) === mb_strtolower($artistName)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-                if (! $exactArtistMatches->isEmpty()) {
-                    $selectedTrack = $exactArtistMatches->first();
-                }
-            }
-
-            // Fallback to the first track if no exact artist match or artist not provided
-            if (! $selectedTrack && ! $filteredTracks->isEmpty()) {
-                $selectedTrack = $filteredTracks->first();
-            }
-
-            if ($selectedTrack) {
+            if (isset($data['tracks']['items'][0])) {
+                $track = $data['tracks']['items'][0];
                 return [
-                    'id' => $selectedTrack['id'],
-                    'duration_ms' => $selectedTrack['duration_ms'],
+                    'id' => $track['id'],
+                    'duration_ms' => $track['duration_ms'],
                 ];
             }
-
-            return null;
-        } catch (\Illuminate\Http\Client\RequestException $e) {
-            \Log::error('Spotify API Error (searchSpotifyTrackWithDetails):', [
-                'user_id' => ($user ? $user->id : 'N/A'),
-                'track' => $trackName,
-                'artist' => $artistName,
-                'status' => $e->response->status(),
-                'response' => $e->response->body(),
-                'message' => $e->getMessage(),
-            ]);
-            if ($e->response->status() === 401) {
-                if ($user) {
-                    $user->spotify_access_token = null;
-                    $user->spotify_refresh_token = null;
-                    $user->spotify_token_expires_at = null;
-                    $user->save();
-                }
+        } catch (RequestException $e) {
+            if ($e->response && $e->response->status() === 401) {
+                // If token is invalid/expired, log and nullify for the specific user
+                Log::error('Spotify 401 Unauthorized during track search for user ' . $user->id . '. Token may be invalid. Nullifying tokens.');
+                $user->spotify_access_token = null;
+                $user->spotify_refresh_token = null;
+                $user->spotify_token_expires_at = null;
+                $user->save();
+            } else {
+                \Log::error("Spotify API error during track search for '{$trackName}' by '{$artistName}' (User: {$user->id}): " . $e->getMessage(), ['status' => $e->response?->status()]);
             }
-            return null;
         } catch (\Exception $e) {
-            \Log::error('Spotify API Error (searchSpotifyTrackWithDetails - General):', ['user_id' => ($user ? $user->id : 'N/A'), 'error' => $e->getMessage()]);
-            return null;
+            \Log::error("General error during Spotify track search for '{$trackName}' by '{$artistName}' (User: {$user->id}): " . $e->getMessage());
         }
+
+        return null;
     }
 }

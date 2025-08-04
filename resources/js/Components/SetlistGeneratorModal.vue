@@ -39,17 +39,14 @@ const selectedSetlist = ref(null);
 
 const form = useForm({
     gig_id: null,
-    setlist_id: null,
-    artist_name: "",
-    venue_name: "",
-    gig_date: "",
+    setlist_id: null, // This is setlist_id_setlistfm
+    artist_name: "", // Not strictly needed for saving to gig, but good for context
+    venue_name: "", // Not strictly needed for saving to gig, but good for context
+    gig_date: "", // Not strictly needed for saving to gig, but good for context
     setlist_url: "",
     sets: [], // This will contain one object: [{ name: 'Main Set', songs: [...] }]
 });
 
-/**
- * Watches for modal visibility and gig prop changes to initialize/reset the form and trigger search.
- */
 watch(
     () => props.show,
     (newValue) => {
@@ -72,9 +69,6 @@ watch(
     { immediate: true }
 );
 
-/**
- * Searches Setlist.fm for setlists based on artist and gig date.
- */
 const searchSetlists = async (artistName, gigDateTime) => {
     isLoading.value = true;
     searchError.value = null;
@@ -105,16 +99,13 @@ const searchSetlists = async (artistName, gigDateTime) => {
     }
 };
 
-/**
- * Selects a setlist from search results and fetches its detailed data (including Spotify duration).
- */
 const selectSetlist = async (setlist) => {
     selectedSetlist.value = setlist;
 
     form.setlist_id = setlist.setlist_id;
-    form.artist_name = setlist.artist_name;
-    form.venue_name = setlist.venue_name;
-    form.gig_date = setlist.event_date.split(".").reverse().join("-");
+    form.artist_name = setlist.artist_name; // Keep for display
+    form.venue_name = setlist.venue_name; // Keep for display
+    form.gig_date = setlist.event_date.split(".").reverse().join("-"); // Keep for display
     form.setlist_url = setlist.url;
 
     ObtainingData.value = true;
@@ -125,7 +116,7 @@ const selectSetlist = async (setlist) => {
         const fullSetlistData = setlistDetailResponse.data;
 
         const songDetailPromises = [];
-        let allFilteredSongs = []; // Collect all filtered songs here first
+        let allFilteredSongs = [];
 
         if (fullSetlistData.sets && fullSetlistData.sets.set) {
             fullSetlistData.sets.set.forEach((set) => {
@@ -143,6 +134,7 @@ const selectSetlist = async (setlist) => {
                                     "Speech",
                                     "Taped",
                                     "Snippet",
+                                    "Acoustic Snippet", // Added new excluded string
                                 ].some((excluded) =>
                                     song.name
                                         .toLowerCase()
@@ -150,7 +142,7 @@ const selectSetlist = async (setlist) => {
                                 )
                         )
                         .forEach((song) => {
-                            allFilteredSongs.push(song); // Collect for later processing
+                            allFilteredSongs.push(song);
                             songDetailPromises.push(
                                 axios
                                     .get(
@@ -191,7 +183,6 @@ const selectSetlist = async (setlist) => {
         const resolvedSongDetails = await Promise.all(songDetailPromises);
 
         let finalSongs = [];
-        // Map resolved details back to allFilteredSongs in order
         allFilteredSongs.forEach((song, index) => {
             const detail = resolvedSongDetails[index];
             finalSongs.push({
@@ -201,18 +192,16 @@ const selectSetlist = async (setlist) => {
             });
         });
 
-        // --- MODIFIED: Assign all songs to a single "Main Set" ---
         if (finalSongs.length > 0) {
             form.sets = [
                 {
-                    name: "Main Set", // Always one main set
+                    name: "Main Set",
                     songs: finalSongs,
                 },
             ];
         } else {
-            form.sets = []; // No songs, no sets
+            form.sets = [];
         }
-        // --- END MODIFIED ---
     } catch (error) {
         console.error(
             "Error fetching detailed setlist or Spotify details:",
@@ -226,11 +215,9 @@ const selectSetlist = async (setlist) => {
     }
 };
 
-/**
- * Saves the selected setlist to the database.
- */
 const saveSetlist = () => {
-    form.post(route("setlists.store"), {
+    // Now sending to setlists.save-to-gig to update the Gig model directly
+    form.post(route("setlists.save-to-gig"), {
         onSuccess: () => {
             emit("close");
             form.reset();
@@ -243,17 +230,11 @@ const saveSetlist = () => {
     });
 };
 
-/**
- * Navigates back to the setlist search results.
- */
 const goBackToSearch = () => {
     selectedSetlist.value = null;
     searchError.value = null;
 };
 
-/**
- * Helper to format duration in milliseconds to MM:SS or HH:MM:SS.
- */
 const formatDuration = (ms) => {
     if (ms === null || isNaN(ms)) return "N/A";
     const totalSeconds = Math.floor(ms / 1000);
@@ -281,16 +262,13 @@ const formatDuration = (ms) => {
                 </DialogDescription>
             </DialogHeader>
 
-            <!-- Content based on state -->
             <div class="p-4">
-                <!-- Loading State (Searching Setlist.fm) -->
                 <div v-if="isLoading" class="text-center py-8">
                     <div
                         class="animate-spin h-12 w-12 rounded-full border-b-2 border-emerald-500 mx-auto mb-4"></div>
                     <p class="text-gray-400">Searching Setlist.fm...</p>
                 </div>
 
-                <!-- Loading State (Pulling data from Spotify) -->
                 <div v-else-if="ObtainingData" class="text-center py-8">
                     <div
                         class="animate-spin h-12 w-12 rounded-full border-b-2 border-emerald-500 mx-auto mb-4"></div>
@@ -301,14 +279,12 @@ const formatDuration = (ms) => {
                     </p>
                 </div>
 
-                <!-- Error State -->
                 <div
                     v-else-if="searchError"
                     class="bg-red-500/10 text-red-400 border border-red-500/20 p-4 rounded-lg mb-4">
                     {{ searchError }}
                 </div>
 
-                <!-- Setlist Selection Step -->
                 <div v-else-if="!selectedSetlist">
                     <p
                         v-if="setlistResults.length === 0"
@@ -370,7 +346,6 @@ const formatDuration = (ms) => {
                     </div>
                 </div>
 
-                <!-- Selected Setlist Details & Save Step -->
                 <div v-else>
                     <Card class="bg-[#191919] border-gray-600">
                         <CardContent class="p-6">
@@ -406,7 +381,6 @@ const formatDuration = (ms) => {
                                                 <Music
                                                     class="h-4 w-4 mr-2 text-emerald-400" />
                                                 {{ song.name }}
-                                                <!-- Display Song Duration -->
                                                 <span
                                                     v-if="song.duration_ms"
                                                     class="ml-auto text-gray-500">

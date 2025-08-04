@@ -70,12 +70,11 @@ const getAvatarFallback = (name) => {
                 <div class="mb-4 flex justify-center">
                     <Avatar class="h-24 w-24 ring-2 ring-emerald-500/30">
                         <AvatarImage
-                            :src="
-                                gig.artist_image_url ||
-                                '/images/no-artist-image.png'
-                            "
+                            v-if="gig.artist_image_url"
+                            :src="gig.artist_image_url"
                             :alt="gig.artist_band_name" />
                         <AvatarFallback
+                            v-else
                             class="bg-gradient-to-r from-gray-700 to-gray-600 text-3xl text-white">
                             {{ getAvatarFallback(gig.artist_band_name) }}
                         </AvatarFallback>

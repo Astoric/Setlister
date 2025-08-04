@@ -176,37 +176,6 @@ const pageTransition = {
                         </Button>
                         <Button
                             :variant="
-                                currentPage.startsWith('SavedSetlists') ||
-                                currentPage.startsWith('SetlistDetail')
-                                    ? 'secondary'
-                                    : 'ghost'
-                            "
-                            as-child
-                            :class="`${
-                                sidebarCollapsed
-                                    ? 'w-full justify-center px-2'
-                                    : 'w-full justify-start gap-3'
-                            } ${
-                                currentPage.startsWith('SavedSetlists') ||
-                                currentPage.startsWith('SetlistDetail')
-                                    ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30'
-                                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                            } transition-all duration-200`">
-                            <Link
-                                :href="route('saved-setlists')"
-                                :title="
-                                    sidebarCollapsed ? 'Saved Setlists' : ''
-                                "
-                                class="flex items-center gap-3">
-                                <!-- ADDED: flex items-center gap-3 -->
-                                <Users class="h-4 w-4" />
-                                <span v-if="!sidebarCollapsed">
-                                    Saved Setlists
-                                </span>
-                            </Link>
-                        </Button>
-                        <Button
-                            :variant="
                                 currentPage.startsWith('Stats')
                                     ? 'secondary'
                                     : 'ghost'

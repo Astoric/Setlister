@@ -3,9 +3,8 @@ import { computed, ref, watch, h } from "vue"; // Import 'h' for renderStars
 import { Head, Link, usePage, router } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 
-// New UI Components (one component per file)
 import Button from "@/Components/ui/Button.vue";
-import Input from "@/Components/ui/Input.vue"; // Might be needed for modals
+import Input from "@/Components/ui/Input.vue";
 import Avatar from "@/Components/ui/Avatar.vue";
 import AvatarImage from "@/Components/ui/AvatarImage.vue";
 import AvatarFallback from "@/Components/ui/AvatarFallback.vue";
@@ -14,18 +13,16 @@ import Card from "@/Components/ui/Card.vue";
 import CardContent from "@/Components/ui/CardContent.vue";
 import CardHeader from "@/Components/ui/CardHeader.vue";
 import CardTitle from "@/Components/ui/CardTitle.vue";
-import Dialog from "@/Components/ui/Dialog.vue"; // For generic modal structure
-import DialogContent from "@/Components/ui/DialogContent.vue"; // For dialog content
-import DialogHeader from "@/Components/ui/DialogHeader.vue"; // For dialog header
-import DialogTitle from "@/Components/ui/DialogTitle.vue"; // For dialog title
-import DialogDescription from "@/Components/ui/DialogDescription.vue"; // For dialog description
+import Dialog from "@/Components/ui/Dialog.vue";
+import DialogContent from "@/Components/ui/DialogContent.vue";
+import DialogHeader from "@/Components/ui/DialogHeader.vue";
+import DialogTitle from "@/Components/ui/DialogTitle.vue";
+import DialogDescription from "@/Components/ui/DialogDescription.vue";
 
-// Specific components for modals (already in components/)
 import GigFormModal from "@/Components/GigFormModal.vue";
 import SetlistGeneratorModal from "@/Components/SetlistGeneratorModal.vue";
 import GigDetailModal from "@/Components/GigDetailModal.vue";
 
-// Lucide Icons (as used in App.jsx) - import all used icons here
 import {
     Plus,
     Edit,
@@ -36,18 +33,40 @@ import {
     Eye,
     Music,
     Star,
-} from "lucide-vue-next"; // Add any missing here
+} from "lucide-vue-next";
 
 const props = defineProps({
     gigs: {
-        // This prop will contain Past Gigs data
         type: Array,
     },
-    // We might need to pass savedSetlists here later for hasSetlist check
-    // savedSetlists: { type: Array, default: () => [] },
 });
 
-// Processed gigs (ensures arrays are proper JS arrays)
+// Helper method for total duration (moved from SetlistController/Model)
+const calculateTotalDuration = (sets) => {
+    let totalDurationMs = 0;
+    if (Array.isArray(sets)) {
+        sets.forEach((set) => {
+            if (set.songs && Array.isArray(set.songs)) {
+                set.songs.forEach((song) => {
+                    if (
+                        song.duration_ms &&
+                        typeof song.duration_ms === "number"
+                    ) {
+                        totalDurationMs += song.duration_ms;
+                    }
+                });
+            }
+        });
+    }
+
+    const totalSeconds = Math.floor(totalDurationMs / 1000);
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+
+    return `${totalHours}h ${remainingMinutes}m`;
+};
+
 const processedGigs = ref([]);
 watch(
     () => props.gigs,
@@ -62,6 +81,7 @@ watch(
                     people_attending: Array.isArray(gig.people_attending)
                         ? gig.people_attending
                         : [],
+                    total_duration_display: calculateTotalDuration(gig.sets), // Calculate duration
                 };
             });
         } else {
@@ -71,14 +91,12 @@ watch(
     { immediate: true }
 );
 
-// General UI state
 const hasGigs = computed(
     () => processedGigs.value && processedGigs.value.length > 0
 );
 const flashSuccess = computed(() => usePage().props.flash?.success || null);
 
-// Modal states for current functionality
-const showAddGigModal = ref(false); // Not used here, but kept for consistency
+const showAddGigModal = ref(false);
 const showEditGigModal = ref(false);
 const selectedGigForEdit = ref(null);
 const showSetlistModal = ref(false);
@@ -86,12 +104,9 @@ const selectedGigForSetlist = ref(null);
 const showGigDetailModal = ref(false);
 const selectedGigForDetail = ref(null);
 
-// Additional state from App.jsx for upcoming/past gig page
-const viewMode = ref("list"); // 'list' or 'calendar'
-const selectedDate = ref(new Date()); // For calendar view
+const viewMode = ref("list");
+const selectedDate = ref(new Date());
 
-// --- Methods for existing functionality ---
-// No openAddGigModal/closeAddGigModal as per Past Gigs design
 const openEditGigModal = (gig) => {
     selectedGigForEdit.value = gig;
     showEditGigModal.value = true;
@@ -128,7 +143,6 @@ const formatDateTime = (dateTimeString) => {
     return new Date(dateTimeString).toLocaleString("en-US", options);
 };
 
-// --- New/Adapted methods from App.jsx ---
 const getAvatarFallback = (name) => {
     return name
         ? name
@@ -142,19 +156,12 @@ const getAvatarFallback = (name) => {
 const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) =>
         h(Star, {
-            // Use h() to render Lucide Star component
             key: i,
             class: `w-3 h-3 transition-colors duration-200 ${
                 i < rating ? "text-yellow-400 fill-current" : "text-gray-500"
             }`,
         })
     );
-};
-const hasSetlist = (artist, date) => {
-    // This logic relies on `savedSetlists` data which is not available here.
-    // For now, return false. If `savedSetlists` is passed as a prop,
-    // this can be implemented fully.
-    return false; // Placeholder
 };
 </script>
 
@@ -164,13 +171,11 @@ const hasSetlist = (artist, date) => {
     <AuthenticatedLayout>
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <!-- Success message display -->
                 <div
                     v-if="flashSuccess"
                     class="mb-4 rounded-lg bg-accent-500 px-4 py-3 shadow-md text-neutral-900"
                     v-html="flashSuccess"></div>
 
-                <!-- Header & Action Buttons -->
                 <div class="mb-8 flex items-center justify-between">
                     <div>
                         <h2
@@ -182,7 +187,6 @@ const hasSetlist = (artist, date) => {
                         </p>
                     </div>
                     <div class="flex items-center gap-4">
-                        <!-- No "Add New Gig" button for Past Gigs -->
                         <div
                             class="flex items-center gap-2 rounded-lg bg-[#191919] p-1">
                             <Button
@@ -217,7 +221,6 @@ const hasSetlist = (artist, date) => {
                     </div>
                 </div>
 
-                <!-- Content Area (List or Calendar) -->
                 <Transition name="fade" mode="out-in">
                     <div v-if="viewMode === 'list'">
                         <div
@@ -330,15 +333,25 @@ const hasSetlist = (artist, date) => {
                                                             class="text-sm text-gray-500">
                                                             Songs:
                                                         </span>
-                                                        <!-- This assumes setlistSongs prop which is not currently passed -->
                                                         <span
                                                             class="text-sm text-gray-300">
-                                                            N/A
+                                                            {{
+                                                                gig.sets &&
+                                                                gig.sets
+                                                                    .length >
+                                                                    0 &&
+                                                                gig.sets[0]
+                                                                    .songs
+                                                                    ? gig
+                                                                          .sets[0]
+                                                                          .songs
+                                                                          .length
+                                                                    : "N/A"
+                                                            }}
                                                         </span>
                                                     </div>
                                                     <div
                                                         class="flex items-center gap-1">
-                                                        <!-- Assumes rating prop not currently passed -->
                                                         <Star
                                                             class="h-4 w-4 text-gray-500 fill-current" />
                                                     </div>
@@ -388,20 +401,27 @@ const hasSetlist = (artist, date) => {
                                             </Button>
                                             <Button
                                                 @click.stop="
-                                                    gig.setlist
+                                                    gig.sets
                                                         ? router.visit(
                                                               route(
-                                                                  'setlists.show',
-                                                                  gig.setlist.id
+                                                                  'gigs.show', // New route for Gig detail
+                                                                  gig.id
                                                               )
                                                           )
                                                         : openSetlistModal(gig)
                                                 "
                                                 class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200">
                                                 <Eye
-                                                    v-if="gig.setlist"
+                                                    v-if="
+                                                        gig.sets &&
+                                                        gig.sets.length > 0
+                                                    "
                                                     class="h-4 w-4 mr-2" />
-                                                <span v-if="gig.setlist">
+                                                <span
+                                                    v-if="
+                                                        gig.sets &&
+                                                        gig.sets.length > 0
+                                                    ">
                                                     View Setlist
                                                 </span>
                                                 <span v-else>
@@ -415,7 +435,6 @@ const hasSetlist = (artist, date) => {
                         </div>
                     </div>
                     <div v-else-if="viewMode === 'calendar'">
-                        <!-- Calendar View Placeholder for Past Gigs -->
                         <Card class="bg-[#191919] border-gray-600">
                             <CardHeader>
                                 <CardTitle class="text-white">
@@ -437,18 +456,17 @@ const hasSetlist = (artist, date) => {
                 </Transition>
             </div>
         </div>
+        <GigDetailModal
+            :show="showGigDetailModal"
+            :gig="selectedGigForDetail"
+            @close="closeGigDetailModal" />
+        <SetlistGeneratorModal
+            :show="showSetlistModal"
+            :gig="selectedGigForSetlist"
+            @close="closeSetlistModal" />
+        <GigFormModal
+            :show="showEditGigModal"
+            :gig="selectedGigForEdit"
+            @close="closeEditGigModal" />
     </AuthenticatedLayout>
-    <!-- Modals -->
-    <GigDetailModal
-        :show="showGigDetailModal"
-        :gig="selectedGigForDetail"
-        @close="closeGigDetailModal" />
-    <SetlistGeneratorModal
-        :show="showSetlistModal"
-        :gig="selectedGigForSetlist"
-        @close="closeSetlistModal" />
-    <GigFormModal
-        :show="showEditGigModal"
-        :gig="selectedGigForEdit"
-        @close="closeEditGigModal" />
 </template>
