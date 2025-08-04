@@ -75,22 +75,23 @@ const renderStars = (rating) => {
     <Head title="Your Music Stats" />
 
     <AuthenticatedLayout>
-        <div class="py-6">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="py-4 sm:py-6">
+            <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
                 <!-- Header for Stats Page -->
-                <div class="mb-8">
+                <div class="mb-6 sm:mb-8">
                     <h2
-                        class="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                        class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                         Your Music Stats
                     </h2>
-                    <p class="mt-2 text-gray-400">
+                    <p class="mt-1 sm:mt-2 text-gray-400 text-xs sm:text-base">
                         Track your musical journey and discover patterns in your
                         listening habits
                     </p>
                 </div>
 
                 <!-- Main Stats Grid -->
-                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+                <div
+                    class="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
                     <!-- Total Gigs Card -->
                     <Card
                         class="bg-[#191919] border-gray-600 hover:border-emerald-500/50 transition-all duration-300">
@@ -191,7 +192,8 @@ const renderStars = (rating) => {
                 </div>
 
                 <!-- Top Band, Top Venue & Top Concert Buddy Grid -->
-                <div class="grid gap-6 md:grid-cols-3 mb-8">
+                <div
+                    class="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3 mb-6 sm:mb-8">
                     <!-- Top Bans Card -->
                     <Card
                         class="bg-[#191919] border-gray-600 hover:border-emerald-500/50 transition-all duration-300">
@@ -254,7 +256,7 @@ const renderStars = (rating) => {
                 </div>
 
                 <!-- Recent Activity & Achievements Grid -->
-                <div class="grid gap-6 md:grid-cols-3">
+                <div class="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
                     <!-- Recent Activity Card -->
                     <Card
                         class="bg-[#191919] border-gray-600 hover:border-emerald-500/50 transition-all duration-300">

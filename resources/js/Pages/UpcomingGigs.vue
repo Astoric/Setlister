@@ -177,14 +177,15 @@ const renderStars = (rating) => {
     <Head title="Upcoming Gigs" />
 
     <AuthenticatedLayout>
-        <div class="py-6">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="py-4 sm:py-6">
+            <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
                 <div
                     v-if="flashSuccess"
                     class="mb-4 rounded-lg bg-accent-500 px-4 py-3 shadow-md text-neutral-900"
                     v-html="flashSuccess"></div>
 
-                <div class="mb-8 flex items-center justify-between">
+                <div
+                    class="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                     <div>
                         <h2
                             class="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -194,15 +195,16 @@ const renderStars = (rating) => {
                             Manage your upcoming performances and setlists
                         </p>
                     </div>
-                    <div class="flex items-center gap-4">
+                    <div
+                        class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
                         <Button
                             @click="openAddGigModal"
-                            class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200">
+                            class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-4 sm:px-6 py-2 sm:py-0 shadow-lg shadow-emerald-500/25 transition-all duration-200 w-full sm:w-auto text-base sm:text-lg">
                             <Plus class="mr-2 h-4 w-4" />
                             Add New Gig
                         </Button>
                         <div
-                            class="flex items-center gap-2 rounded-lg bg-[#191919] p-1">
+                            class="flex items-center gap-2 rounded-lg bg-[#191919] p-1 w-full sm:w-auto justify-center">
                             <Button
                                 :variant="
                                     viewMode === 'list' ? 'secondary' : 'ghost'
@@ -239,29 +241,31 @@ const renderStars = (rating) => {
                     <div v-if="viewMode === 'list'">
                         <div
                             v-if="!hasGigs"
-                            class="rounded-lg bg-neutral-800 p-6 text-center shadow-sm overflow-hidden">
-                            <h3 class="mb-4 text-xl font-semibold text-white">
+                            class="rounded-lg bg-neutral-800 p-4 sm:p-6 text-center shadow-sm overflow-hidden">
+                            <h3
+                                class="mb-4 text-lg sm:text-xl font-semibold text-white">
                                 No Upcoming Gigs Yet!
                             </h3>
                             <Button
                                 @click="openAddGigModal"
-                                class="mx-auto flex items-center bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200">
+                                class="mx-auto flex items-center bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-4 sm:px-6 py-2 sm:py-0 shadow-lg shadow-emerald-500/25 transition-all duration-200 text-base sm:text-lg">
                                 <Plus class="mr-2 h-4 w-4" />
                                 Add New Gig
                             </Button>
                         </div>
-                        <div v-else class="grid gap-6">
+                        <div v-else class="grid gap-4 sm:gap-6 grid-cols-1">
                             <Card
                                 v-for="(gig, index) in processedGigs"
                                 :key="gig.id"
                                 :class="`bg-[#191919] border-gray-600 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 group cursor-pointer`"
                                 @click="openGigDetailModal(gig)">
-                                <CardContent class="p-6">
+                                <CardContent class="p-4 sm:p-6">
                                     <div
-                                        class="flex items-center justify-between">
-                                        <div class="flex items-center gap-4">
+                                        class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+                                        <div
+                                            class="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
                                             <Avatar
-                                                class="h-16 w-16 ring-2 ring-gray-600 group-hover:ring-emerald-500/50 transition-all duration-300">
+                                                class="h-12 w-12 sm:h-16 sm:w-16 ring-2 ring-gray-600 group-hover:ring-emerald-500/50 transition-all duration-300">
                                                 <AvatarImage
                                                     v-if="gig.artist_image_url"
                                                     :src="gig.artist_image_url"
@@ -279,16 +283,16 @@ const renderStars = (rating) => {
                                                 </AvatarFallback>
                                             </Avatar>
 
-                                            <div class="space-y-2">
+                                            <div class="space-y-1 sm:space-y-2">
                                                 <h3
-                                                    class="text-xl font-semibold text-white group-hover:text-emerald-400 transition-colors">
+                                                    class="text-lg sm:text-xl font-semibold text-white group-hover:text-emerald-400 transition-colors">
                                                     {{ gig.artist_band_name }}
                                                 </h3>
 
                                                 <div
-                                                    class="flex items-center gap-4 text-sm text-gray-400">
+                                                    class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
                                                     <div
-                                                        class="flex items-center gap-2">
+                                                        class="flex items-center gap-1 sm:gap-2">
                                                         <MapPin
                                                             class="h-4 w-4" />
                                                         <span>
@@ -296,7 +300,7 @@ const renderStars = (rating) => {
                                                         </span>
                                                     </div>
                                                     <div
-                                                        class="flex items-center gap-2">
+                                                        class="flex items-center gap-1 sm:gap-2">
                                                         <Calendar
                                                             class="h-4 w-4" />
                                                         <span>
@@ -310,7 +314,7 @@ const renderStars = (rating) => {
                                                 </div>
 
                                                 <div
-                                                    class="flex items-center gap-2">
+                                                    class="flex items-center gap-1 sm:gap-2 flex-wrap">
                                                     <span
                                                         class="text-sm text-gray-500">
                                                         Support:
@@ -342,12 +346,13 @@ const renderStars = (rating) => {
                                                 </div>
 
                                                 <div
-                                                    class="flex items-center gap-2">
+                                                    class="flex items-center gap-1 sm:gap-2 flex-wrap">
                                                     <span
                                                         class="text-sm text-gray-500">
                                                         Attending with:
                                                     </span>
-                                                    <div class="flex gap-2">
+                                                    <div
+                                                        class="flex gap-1 sm:gap-2 flex-wrap">
                                                         <Badge
                                                             v-if="
                                                                 (Array.isArray(
@@ -373,7 +378,8 @@ const renderStars = (rating) => {
                                             </div>
                                         </div>
 
-                                        <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex items-center gap-2 sm:gap-3 mt-4 sm:mt-0">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
@@ -394,7 +400,7 @@ const renderStars = (rating) => {
                                                           )
                                                         : openSetlistModal(gig)
                                                 "
-                                                class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-6 shadow-lg shadow-emerald-500/25 transition-all duration-200">
+                                                class="text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 px-4 sm:px-6 py-2 sm:py-0 shadow-lg shadow-emerald-500/25 transition-all duration-200 text-xs sm:text-base">
                                                 <Eye
                                                     v-if="
                                                         gig.sets &&
@@ -428,8 +434,8 @@ const renderStars = (rating) => {
                             <CardContent>
                                 <div class="text-center py-8 text-gray-400">
                                     <Calendar
-                                        class="w-12 h-12 mx-auto mb-3 opacity-50" />
-                                    <p>
+                                        class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 opacity-50" />
+                                    <p class="text-xs sm:text-base">
                                         Calendar view for upcoming gigs is
                                         coming soon!
                                     </p>

@@ -66,12 +66,19 @@ const pageTransition = {
 
 <template>
     <div class="min-h-screen bg-[#212121] text-white">
-        <div class="flex">
+        <div class="flex flex-col md:flex-row">
             <!-- Sidebar -->
             <div
-                :class="`${
-                    sidebarCollapsed ? 'w-16' : 'w-64'
-                } bg-[#121212] border-r border-gray-800 min-h-screen transition-all duration-300`"
+                :class="
+                    `${
+                        sidebarCollapsed ? 'w-16' : 'w-64'
+                    } bg-[#121212] border-r border-gray-800 min-h-screen transition-all duration-300 fixed md:static z-30 top-0 left-0 h-full md:h-auto md:relative flex-shrink-0` +
+                    (sidebarCollapsed ? ' md:w-16' : ' md:w-64') +
+                    ' ' +
+                    (sidebarCollapsed ? 'w-16' : 'w-64') +
+                    ' ' +
+                    'hidden md:block'
+                "
                 :style="{ width: sidebarCollapsed ? '64px' : '256px' }">
                 <div class="p-4">
                     <!-- Header with toggle -->
@@ -102,7 +109,6 @@ const pageTransition = {
                             size="sm"
                             @click="sidebarCollapsed = !sidebarCollapsed"
                             class="p-2 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white">
-                            <!-- Removed motion.div around icons -->
                             <Menu v-if="sidebarCollapsed" class="h-4 w-4" />
                             <X v-else class="h-4 w-4" />
                         </Button>
@@ -121,14 +127,12 @@ const pageTransition = {
 
                     <!-- Navigation Links -->
                     <nav class="space-y-2">
-                        <!-- MODIFIED: Add items-center and gap-3 to ensure inline alignment -->
                         <Button
                             :variant="
                                 currentPage.startsWith('Upcoming')
                                     ? 'secondary'
                                     : 'ghost'
                             "
-                            as-child
                             :class="`${
                                 sidebarCollapsed
                                     ? 'w-full justify-center px-2'
@@ -137,17 +141,11 @@ const pageTransition = {
                                 currentPage.startsWith('Upcoming')
                                     ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30'
                                     : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                            } transition-all duration-200`">
-                            <Link
-                                :href="route('dashboard')"
-                                :title="sidebarCollapsed ? 'Upcoming Gigs' : ''"
-                                class="flex items-center gap-3">
-                                <!-- ADDED: flex items-center gap-3 -->
-                                <Calendar class="h-4 w-4" />
-                                <span v-if="!sidebarCollapsed">
-                                    Upcoming Gigs
-                                </span>
-                            </Link>
+                            } transition-all duration-200`"
+                            @click="router.visit(route('dashboard'))"
+                            :title="sidebarCollapsed ? 'Upcoming Gigs' : ''">
+                            <Calendar class="h-4 w-4" />
+                            <span v-if="!sidebarCollapsed">Upcoming Gigs</span>
                         </Button>
                         <Button
                             :variant="
@@ -155,7 +153,6 @@ const pageTransition = {
                                     ? 'secondary'
                                     : 'ghost'
                             "
-                            as-child
                             :class="`${
                                 sidebarCollapsed
                                     ? 'w-full justify-center px-2'
@@ -164,15 +161,11 @@ const pageTransition = {
                                 currentPage.startsWith('Past')
                                     ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30'
                                     : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                            } transition-all duration-200`">
-                            <Link
-                                :href="route('past-gigs')"
-                                :title="sidebarCollapsed ? 'Past Gigs' : ''"
-                                class="flex items-center gap-3">
-                                <!-- ADDED: flex items-center gap-3 -->
-                                <Music class="h-4 w-4" />
-                                <span v-if="!sidebarCollapsed">Past Gigs</span>
-                            </Link>
+                            } transition-all duration-200`"
+                            @click="router.visit(route('past-gigs'))"
+                            :title="sidebarCollapsed ? 'Past Gigs' : ''">
+                            <Music class="h-4 w-4" />
+                            <span v-if="!sidebarCollapsed">Past Gigs</span>
                         </Button>
                         <Button
                             :variant="
@@ -180,7 +173,6 @@ const pageTransition = {
                                     ? 'secondary'
                                     : 'ghost'
                             "
-                            as-child
                             :class="`${
                                 sidebarCollapsed
                                     ? 'w-full justify-center px-2'
@@ -189,15 +181,11 @@ const pageTransition = {
                                 currentPage.startsWith('Stats')
                                     ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30'
                                     : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                            } transition-all duration-200`">
-                            <Link
-                                :href="route('stats.index')"
-                                :title="sidebarCollapsed ? 'Stats' : ''"
-                                class="flex items-center gap-3">
-                                <!-- ADDED: flex items-center gap-3 -->
-                                <BarChart3 class="h-4 w-4" />
-                                <span v-if="!sidebarCollapsed">Stats</span>
-                            </Link>
+                            } transition-all duration-200`"
+                            @click="router.visit(route('stats.index'))"
+                            :title="sidebarCollapsed ? 'Stats' : ''">
+                            <BarChart3 class="h-4 w-4" />
+                            <span v-if="!sidebarCollapsed">Stats</span>
                         </Button>
                         <Button
                             :variant="
@@ -205,7 +193,6 @@ const pageTransition = {
                                     ? 'secondary'
                                     : 'ghost'
                             "
-                            as-child
                             :class="`${
                                 sidebarCollapsed
                                     ? 'w-full justify-center px-2'
@@ -214,42 +201,42 @@ const pageTransition = {
                                 currentPage.startsWith('Profile')
                                     ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30'
                                     : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                            } transition-all duration-200`">
-                            <Link
-                                :href="route('profile.edit')"
-                                :title="sidebarCollapsed ? 'Profile' : ''"
-                                class="flex items-center gap-3">
-                                <!-- ADDED: flex items-center gap-3 -->
-                                <Settings class="h-4 w-4" />
-                                <span v-if="!sidebarCollapsed">Profile</span>
-                            </Link>
+                            } transition-all duration-200`"
+                            @click="router.visit(route('profile.edit'))"
+                            :title="sidebarCollapsed ? 'Profile' : ''">
+                            <Settings class="h-4 w-4" />
+                            <span v-if="!sidebarCollapsed">Profile</span>
                         </Button>
                     </nav>
                 </div>
             </div>
 
             <!-- Main Content -->
-            <div class="flex-1">
+            <div class="flex-1 md:ml-0">
                 <!-- Header -->
-                <div class="bg-[#212121] border-b border-gray-700 p-6">
-                    <div class="flex items-center justify-between">
+                <div
+                    class="bg-[#212121] border-b border-gray-700 p-4 sm:p-6 sticky top-0 z-20">
+                    <div
+                        class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                         <!-- Removed motion.div -->
                         <div>
-                            <h1 class="text-2xl font-semibold text-white">
+                            <h1
+                                class="text-lg sm:text-2xl font-semibold text-white">
                                 Hi {{ user.name }}
                             </h1>
-                            <p class="mt-1 text-gray-400">
+                            <p class="mt-1 text-xs sm:text-base text-gray-400">
                                 Ready to create some amazing setlists?
                             </p>
                         </div>
 
-                        <div class="flex items-center gap-4">
-                            <div class="relative">
+                        <div
+                            class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                            <div class="relative w-full sm:w-auto">
                                 <Search
                                     class="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400 h-4 w-4" />
                                 <Input
                                     placeholder="Search by Album title, UPC, Artist"
-                                    class="w-80 pl-10 bg-[#191919] border-gray-600 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200" />
+                                    class="w-full sm:w-80 pl-10 bg-[#191919] border-gray-600 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 text-xs sm:text-base" />
                             </div>
 
                             <!-- Profile Dropdown -->
@@ -296,7 +283,7 @@ const pageTransition = {
                 </div>
 
                 <!-- Page Content Slot -->
-                <main class="p-6">
+                <main class="p-4 sm:p-6">
                     <Transition
                         name="page-slide"
                         mode="out-in"

@@ -227,8 +227,8 @@ const lastModifiedDisplay = computed(() => {
     <Head :title="`${gig.artist_band_name} Setlist`" />
 
     <AuthenticatedLayout>
-        <div class="py-6">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="py-4 sm:py-6">
+            <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
                 <div
                     v-if="flashSuccess"
                     class="mb-4 rounded-lg bg-accent-500 px-4 py-3 shadow-md text-neutral-900"
@@ -239,12 +239,13 @@ const lastModifiedDisplay = computed(() => {
                     {{ flashError }}
                 </div>
 
-                <div class="border-b border-gray-700 p-6">
-                    <div class="mb-6 flex items-center justify-between">
+                <div class="border-b border-gray-700 p-4 sm:p-6">
+                    <div
+                        class="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                         <Button
                             variant="ghost"
                             as-child
-                            class="gap-2 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white">
+                            class="gap-2 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white w-full sm:w-auto">
                             <Link
                                 :href="
                                     gig.gig_date_time &&
@@ -258,7 +259,8 @@ const lastModifiedDisplay = computed(() => {
                             </Link>
                         </Button>
 
-                        <div class="flex items-center gap-3">
+                        <div
+                            class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
                             <Button
                                 @click="confirmSetlistDeletion"
                                 class="bg-red-600 hover:bg-red-700 p-2 text-white transition-all duration-200 rounded-lg"
@@ -286,8 +288,10 @@ const lastModifiedDisplay = computed(() => {
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-6">
-                        <Avatar class="h-20 w-20 ring-2 ring-emerald-500/30">
+                    <div
+                        class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mt-4 sm:mt-0">
+                        <Avatar
+                            class="h-16 w-16 sm:h-20 sm:w-20 ring-2 ring-emerald-500/30">
                             <AvatarImage
                                 v-if="gig.artist_image_url"
                                 :src="gig.artist_image_url"
@@ -299,24 +303,24 @@ const lastModifiedDisplay = computed(() => {
                             </AvatarFallback>
                         </Avatar>
 
-                        <div>
+                        <div class="w-full sm:w-auto">
                             <h1
-                                class="mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-4xl font-bold text-transparent">
+                                class="mb-1 sm:mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-2xl sm:text-4xl font-bold text-transparent">
                                 {{ gig.artist_band_name }}
                             </h1>
                             <div
-                                class="mb-3 flex items-center gap-4 text-gray-400">
-                                <div class="flex items-center gap-2">
+                                class="mb-2 sm:mb-3 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-base text-gray-400">
+                                <div class="flex items-center gap-1 sm:gap-2">
                                     <MapPin class="h-4 w-4" />
                                     <span>{{ gig.venue }}</span>
                                 </div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-1 sm:gap-2">
                                     <Calendar class="h-4 w-4" />
                                     <span>
                                         {{ formatDate(gig.gig_date_time) }}
                                     </span>
                                 </div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-1 sm:gap-2">
                                     <Clock class="h-4 w-4" />
                                     <span>
                                         {{ totalDurationDisplay }}
@@ -327,11 +331,11 @@ const lastModifiedDisplay = computed(() => {
                     </div>
                 </div>
 
-                <div class="p-6">
-                    <div class="max-w-4xl">
-                        <div class="mb-8">
+                <div class="p-4 sm:p-6">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="mb-6 sm:mb-8">
                             <h2
-                                class="mb-6 text-2xl font-semibold text-emerald-400">
+                                class="mb-4 sm:mb-6 text-xl sm:text-2xl font-semibold text-emerald-400">
                                 Main Set
                             </h2>
                             <Card class="bg-[#191919] border-gray-600">
@@ -352,7 +356,7 @@ const lastModifiedDisplay = computed(() => {
                                                 song, songIndex
                                             ) in setObj.songs"
                                             :key="`${setIndex}-${songIndex}`"
-                                            class="group flex items-center gap-4 p-4 transition-colors hover:bg-gray-800/50"
+                                            class="group flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 p-3 sm:p-4 transition-colors hover:bg-gray-800/50"
                                             :class="{
                                                 'border-b border-gray-700':
                                                     setIndex <
@@ -361,7 +365,7 @@ const lastModifiedDisplay = computed(() => {
                                                         setObj.songs.length - 1,
                                             }">
                                             <div
-                                                class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-semibold text-emerald-400">
+                                                class="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-emerald-500/20 text-xs sm:text-sm font-semibold text-emerald-400">
                                                 {{
                                                     findSongByReference(
                                                         setIndex,
@@ -369,14 +373,15 @@ const lastModifiedDisplay = computed(() => {
                                                     )
                                                 }}
                                             </div>
-                                            <div class="flex-1">
+                                            <div
+                                                class="flex-1 w-full sm:w-auto">
                                                 <p
-                                                    class="text-white transition-colors group-hover:text-emerald-400">
+                                                    class="text-white transition-colors group-hover:text-emerald-400 text-xs sm:text-base">
                                                     {{ song.name }}
                                                 </p>
                                             </div>
                                             <div
-                                                class="text-sm text-gray-500 transition-colors group-hover:text-gray-400">
+                                                class="text-xs sm:text-sm text-gray-500 transition-colors group-hover:text-gray-400">
                                                 {{
                                                     formatDuration(
                                                         song.duration_ms
@@ -397,7 +402,7 @@ const lastModifiedDisplay = computed(() => {
 
                         <div
                             v-if="gig.setlist_url"
-                            class="mt-8 text-right text-sm text-gray-400">
+                            class="mt-6 sm:mt-8 text-right text-xs sm:text-sm text-gray-400">
                             <a
                                 :href="gig.setlist_url"
                                 target="_blank"

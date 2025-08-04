@@ -125,22 +125,24 @@ const handleResetPassword = () => {
 
     <!-- Main Page Container with Gradient -->
     <div
-        class="min-h-screen bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 flex items-center justify-center p-6">
-        <Card class="w-full max-w-md bg-[#121212] border-gray-700 shadow-2xl">
-            <CardContent class="p-8">
+        class="min-h-screen bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 flex items-center justify-center p-4 sm:p-6">
+        <Card
+            class="w-full max-w-md bg-[#121212] border-gray-700 shadow-2xl sm:rounded-2xl rounded-lg">
+            <CardContent class="p-4 sm:p-8">
                 <!-- Header Section (Logo, Title, Subtitle) -->
-                <div class="text-center mb-8">
+                <div class="text-center mb-6 sm:mb-8">
                     <div
-                        class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                         <img
                             src="/images/logo.svg"
                             alt="Setlister Logo"
-                            class="h-15 w-auto" />
+                            class="h-12 w-auto sm:h-15" />
                     </div>
-                    <h1 class="text-2xl font-semibold text-white mb-2">
+                    <h1
+                        class="text-xl sm:text-2xl font-semibold text-white mb-1 sm:mb-2">
                         Welcome to Setlister
                     </h1>
-                    <p class="text-gray-400 text-sm">
+                    <p class="text-gray-400 text-xs sm:text-sm">
                         <template v-if="loginState === 'welcome'">
                             Please sign in to your account
                         </template>
@@ -167,13 +169,13 @@ const handleResetPassword = () => {
                     <div
                         v-if="pageStatus"
                         key="status-message"
-                        class="mb-4 text-sm font-medium text-emerald-400">
+                        class="mb-4 text-xs sm:text-sm font-medium text-emerald-400">
                         {{ pageStatus }}
                     </div>
                     <div
                         v-else-if="Object.keys(pageErrors).length > 0"
                         key="error-messages"
-                        class="mb-4 text-sm text-red-400">
+                        class="mb-4 text-xs sm:text-sm text-red-400">
                         <p
                             v-for="(errorMessages, field) in pageErrors"
                             :key="field">
@@ -191,7 +193,7 @@ const handleResetPassword = () => {
                     <div
                         v-if="loginState === 'welcome'"
                         key="welcome"
-                        class="space-y-4"
+                        class="space-y-3 sm:space-y-4"
                         v-motion-fade-visible
                         :welcome="{ opacity: 0, y: 20 }"
                         :animate="{ opacity: 1, y: 0 }"
@@ -200,7 +202,7 @@ const handleResetPassword = () => {
                         <Button
                             v-if="canLogin"
                             @click="loginState = 'login'"
-                            class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 transition-all duration-200"
+                            class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 transition-all duration-200 text-base sm:text-lg py-2 sm:py-3"
                             size="lg">
                             Login
                         </Button>
@@ -208,7 +210,7 @@ const handleResetPassword = () => {
                         <Button
                             v-if="canRegister"
                             @click="loginState = 'register'"
-                            class="w-full bg-[#121212] border-2 border-emerald-500 text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 hover:border-emerald-400 transition-all duration-200"
+                            class="w-full bg-[#121212] border-2 border-emerald-500 text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 hover:border-emerald-400 transition-all duration-200 text-base sm:text-lg py-2 sm:py-3"
                             size="lg">
                             Register
                         </Button>
@@ -219,13 +221,13 @@ const handleResetPassword = () => {
                         v-else-if="loginState === 'login'"
                         key="login"
                         @submit.prevent="handleLogin"
-                        class="space-y-6"
+                        class="space-y-5 sm:space-y-6"
                         v-motion-fade-visible
                         :welcome="{ opacity: 0, y: 20 }"
                         :animate="{ opacity: 1, y: 0 }"
                         :exit="{ opacity: 0, y: -20 }"
                         :duration="500">
-                        <div class="space-y-2">
+                        <div class="space-y-1 sm:space-y-2">
                             <Label for="email">Email</Label>
                             <div class="relative mt-1">
                                 <Mail
@@ -244,7 +246,7 @@ const handleResetPassword = () => {
                                 :message="getError(loginData, 'email')" />
                         </div>
 
-                        <div class="space-y-2">
+                        <div class="space-y-1 sm:space-y-2">
                             <Label for="password">Password</Label>
                             <div class="relative mt-1">
                                 <Lock
@@ -270,7 +272,8 @@ const handleResetPassword = () => {
                                 :message="getError(loginData, 'password')" />
                         </div>
 
-                        <div class="flex items-center justify-between">
+                        <div
+                            class="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                             <label class="flex items-center">
                                 <input
                                     type="checkbox"
@@ -289,7 +292,7 @@ const handleResetPassword = () => {
                             </Button>
                         </div>
 
-                        <div class="space-y-3">
+                        <div class="space-y-2 sm:space-y-3">
                             <Button
                                 type="submit"
                                 :disabled="loginData.processing"
@@ -313,13 +316,13 @@ const handleResetPassword = () => {
                         v-else-if="loginState === 'register'"
                         key="register"
                         @submit.prevent="handleRegister"
-                        class="space-y-6"
+                        class="space-y-5 sm:space-y-6"
                         v-motion-fade-visible
                         :welcome="{ opacity: 0, y: 20 }"
                         :animate="{ opacity: 1, y: 0 }"
                         :exit="{ opacity: 0, y: -20 }"
                         :duration="500">
-                        <div class="space-y-2">
+                        <div class="space-y-1 sm:space-y-2">
                             <Label for="name">Full Name</Label>
                             <div class="relative">
                                 <User
@@ -338,7 +341,7 @@ const handleResetPassword = () => {
                                 :message="getError(registerData, 'name')" />
                         </div>
 
-                        <div class="space-y-2">
+                        <div class="space-y-1 sm:space-y-2">
                             <Label for="email">Email</Label>
                             <div class="relative">
                                 <Mail
@@ -357,7 +360,7 @@ const handleResetPassword = () => {
                                 :message="getError(registerData, 'email')" />
                         </div>
 
-                        <div class="space-y-2">
+                        <div class="space-y-1 sm:space-y-2">
                             <Label for="password">Password</Label>
                             <div class="relative">
                                 <Lock
@@ -425,7 +428,7 @@ const handleResetPassword = () => {
                                 " />
                         </div>
 
-                        <div class="space-y-3">
+                        <div class="space-y-2 sm:space-y-3">
                             <Button
                                 type="submit"
                                 :disabled="registerData.processing"
@@ -449,13 +452,13 @@ const handleResetPassword = () => {
                         v-else-if="loginState === 'forgot'"
                         key="forgot"
                         @submit.prevent="handleForgotPassword"
-                        class="space-y-6"
+                        class="space-y-5 sm:space-y-6"
                         v-motion-fade-visible
                         :welcome="{ opacity: 0, y: 20 }"
                         :animate="{ opacity: 1, y: 0 }"
                         :exit="{ opacity: 0, y: -20 }"
                         :duration="500">
-                        <div class="space-y-2">
+                        <div class="space-y-1 sm:space-y-2">
                             <Label for="forgot-email">Email</Label>
                             <div class="relative mt-1">
                                 <Mail
@@ -509,7 +512,7 @@ const handleResetPassword = () => {
                         :animate="{ opacity: 1, y: 0 }"
                         :exit="{ opacity: 0, y: -20 }"
                         :duration="500">
-                        <div class="space-y-2">
+                        <div class="space-y-1 sm:space-y-2">
                             <Label for="reset-email">Email</Label>
                             <div class="relative mt-1">
                                 <Mail
@@ -602,7 +605,7 @@ const handleResetPassword = () => {
                                 " />
                         </div>
 
-                        <div class="space-y-3">
+                        <div class="space-y-2 sm:space-y-3">
                             <Button
                                 type="submit"
                                 :disabled="resetPasswordData.processing"
@@ -623,8 +626,10 @@ const handleResetPassword = () => {
                 </Transition>
 
                 <!-- Terms & Privacy Policy (only for welcome view) -->
-                <div v-if="loginState === 'welcome'" class="mt-6 text-center">
-                    <p class="text-xs text-gray-500">
+                <div
+                    v-if="loginState === 'welcome'"
+                    class="mt-4 sm:mt-6 text-center">
+                    <p class="text-[10px] sm:text-xs text-gray-500">
                         By continuing, you agree to our
                         <a
                             href="#"
