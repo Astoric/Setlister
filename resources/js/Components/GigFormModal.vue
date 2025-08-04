@@ -208,6 +208,12 @@ const submit = () => {
     } else {
         form.post(route("gigs.store"), {
             onSuccess: () => {
+                form.artist_band_name = ""; // Clear form fields after successful edit
+                form.venue = ""; // Clear form fields after successful edit
+                form.gig_date_time = ""; // Clear form fields after successful edit
+                form.support_acts = [];
+                form.people_attending = [];
+                form.clearErrors();
                 emit("close");
                 // Reset form for next new gig entry (already handled by watch when modal closes)
             },
@@ -216,6 +222,16 @@ const submit = () => {
             },
         });
     }
+};
+
+const handleCancel = () => {
+    emit("close");
+    form.artist_band_name = ""; // Clear form fields after successful edit
+    form.venue = ""; // Clear form fields after successful edit
+    form.gig_date_time = ""; // Clear form fields after successful edit
+    form.support_acts = [];
+    form.people_attending = [];
+    form.clearErrors();
 };
 
 /**
@@ -427,7 +443,7 @@ const timeInput = computed({
                     <!-- Cancel Button -->
                     <Button
                         variant="ghost"
-                        @click="emit('close')"
+                        @click="handleCancel()"
                         class="text-gray-400 hover:bg-gray-700 hover:text-white transition-all duration-200">
                         Cancel
                     </Button>
