@@ -410,6 +410,8 @@ class SpotifyAuthController extends Controller
      */
     public static function searchSpotifyTrackWithDetails(string $trackName, ?string $artistName = null, ?User $user = null): ?array
     {
+        $user = $user ?? Auth::user();
+        
         // Use the passed $user instead of Auth::user()
         if (!$user || !$user->spotify_access_token) {
             \Log::warning('No user model or Spotify token provided to search for track details.');

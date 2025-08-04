@@ -420,7 +420,7 @@ class SetlistController extends Controller
         $trackName = $request->input('trackName');
         $artistName = $request->input('artistName');
 
-        $trackDetails = SpotifyAuthController::searchSpotifyTrackWithDetails($trackName, $artistName);
+        $trackDetails = SpotifyAuthController::searchSpotifyTrackWithDetails($trackName, $artistName, Auth::user());
 
         if (!$trackDetails) {
             \Log::info("Spotify track details not found for '{$trackName}' by '{$artistName}'");
