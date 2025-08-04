@@ -260,7 +260,7 @@ const lastModifiedDisplay = computed(() => {
                         </Button>
 
                         <div
-                            class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                            class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-center sm:justify-end mt-4 sm:mt-0">
                             <Button
                                 @click="confirmSetlistDeletion"
                                 class="bg-red-600 hover:bg-red-700 p-2 text-white transition-all duration-200 rounded-lg"

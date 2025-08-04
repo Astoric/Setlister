@@ -66,8 +66,8 @@ const pageTransition = {
 </script>
 
 <template>
-    <div class="min-h-screen bg-[#212121] text-white">
-        <div class="flex flex-col md:flex-row">
+    <div class="min-h-screen bg-[#212121] text-white flex flex-col">
+        <div class="flex flex-col md:flex-row flex-1">
             <!-- Mobile Hamburger Button -->
             <button
                 class="md:hidden fixed top-4 left-4 z-40 bg-[#191919] rounded-full p-2 shadow-lg border border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800 transition-all"
@@ -233,14 +233,20 @@ const pageTransition = {
             </div>
 
             <!-- Main Content -->
-            <div class="flex-1 md:ml-0">
+            <div class="flex-1 md:ml-0 flex flex-col min-h-screen">
                 <!-- Header -->
                 <div
                     class="bg-[#212121] border-b border-gray-700 p-4 sm:p-6 sticky top-0 z-20">
                     <div
                         class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                         <!-- Removed motion.div -->
-                        <div>
+                        <div
+                            :class="[
+                                'transition-all duration-200',
+                                'w-full',
+                                'sm:w-auto',
+                                !sidebarOpen ? 'ml-14 md:ml-0' : 'ml-0',
+                            ]">
                             <h1
                                 class="text-lg sm:text-2xl font-semibold text-white">
                                 Hi {{ user.name }}
@@ -251,8 +257,9 @@ const pageTransition = {
                         </div>
 
                         <div
-                            class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                            <div class="relative w-full sm:w-auto">
+                            class="flex flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                            <div
+                                class="relative flex-1 sm:flex-none w-full sm:w-auto">
                                 <Search
                                     class="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400 h-4 w-4" />
                                 <Input
@@ -263,7 +270,7 @@ const pageTransition = {
                             <!-- Profile Dropdown -->
                             <DropdownMenu>
                                 <DropdownMenuTrigger
-                                    class="relative h-8 w-8 cursor-pointer rounded-full ring-2 ring-emerald-500/30 transition-all hover:ring-emerald-500/50">
+                                    class="relative h-8 w-8 cursor-pointer rounded-full ring-2 ring-emerald-500/30 transition-all hover:ring-emerald-500/50 ml-2">
                                     <Avatar class="h-8 w-8">
                                         <AvatarImage
                                             v-if="
@@ -304,7 +311,7 @@ const pageTransition = {
                 </div>
 
                 <!-- Page Content Slot -->
-                <main class="p-4 sm:p-6">
+                <main class="p-4 sm:p-6 flex-1 flex flex-col">
                     <Transition
                         name="page-slide"
                         mode="out-in"

@@ -302,9 +302,10 @@ const formatDuration = (ms) => {
                             v-for="setlist in setlistResults"
                             :key="setlist.setlist_id"
                             @click="selectSetlist(setlist)"
-                            class="bg-[#212121] border-gray-700 hover:bg-gray-700 transition-colors cursor-pointer">
-                            <CardContent class="p-4">
-                                <div class="flex items-center justify-between">
+                            class="bg-[#212121] border-gray-700 hover:bg-gray-700 transition-colors cursor-pointer max-w-full overflow-x-auto">
+                            <CardContent class="p-4 w-full">
+                                <div
+                                    class="flex flex-wrap items-center justify-between w-full min-w-0">
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="h-10 w-10 flex items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">

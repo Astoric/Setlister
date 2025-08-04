@@ -395,7 +395,7 @@ const renderStars = (rating) => {
                                         </div>
 
                                         <div
-                                            class="flex items-center gap-2 sm:gap-3 mt-4 sm:mt-0">
+                                            class="flex items-center gap-2 sm:gap-3 mt-4 sm:mt-0 justify-center sm:justify-end w-full sm:w-auto">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
