@@ -31,6 +31,7 @@ import Input from "@/Components/ui/Input.vue";
 const user = usePage().props.auth.user;
 
 const sidebarCollapsed = ref(false);
+const sidebarOpen = ref(false); // For mobile
 const currentPage = computed(() => usePage().component);
 
 const getAvatarFallback = (name) => {
@@ -67,20 +68,40 @@ const pageTransition = {
 <template>
     <div class="min-h-screen bg-[#212121] text-white">
         <div class="flex flex-col md:flex-row">
+            <!-- Mobile Hamburger Button -->
+            <button
+                class="md:hidden fixed top-4 left-4 z-40 bg-[#191919] rounded-full p-2 shadow-lg border border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800 transition-all"
+                @click="sidebarOpen = true"
+                aria-label="Open navigation menu">
+                <Menu class="h-6 w-6" />
+            </button>
+
+            <!-- Sidebar Overlay for Mobile -->
+            <div
+                v-if="sidebarOpen"
+                class="fixed inset-0 bg-black bg-opacity-40 z-30 md:hidden"
+                @click.self="sidebarOpen = false"></div>
+
             <!-- Sidebar -->
             <div
-                :class="
-                    `${
-                        sidebarCollapsed ? 'w-16' : 'w-64'
-                    } bg-[#121212] border-r border-gray-800 min-h-screen transition-all duration-300 fixed md:static z-30 top-0 left-0 h-full md:h-auto md:relative flex-shrink-0` +
-                    (sidebarCollapsed ? ' md:w-16' : ' md:w-64') +
-                    ' ' +
-                    (sidebarCollapsed ? 'w-16' : 'w-64') +
-                    ' ' +
-                    'hidden md:block'
-                "
+                :class="[
+                    sidebarCollapsed ? 'w-16' : 'w-64',
+                    'bg-[#121212] border-r border-gray-800 min-h-screen transition-all duration-300 fixed md:static z-40 top-0 left-0 h-full md:h-auto md:relative flex-shrink-0',
+                    sidebarOpen ? 'block' : 'hidden',
+                    'md:block',
+                ]"
                 :style="{ width: sidebarCollapsed ? '64px' : '256px' }">
                 <div class="p-4">
+                    <!-- Mobile Close Button -->
+                    <div class="flex md:hidden justify-end mb-4">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            @click="sidebarOpen = false"
+                            class="p-2 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white">
+                            <X class="h-5 w-5" />
+                        </Button>
+                    </div>
                     <!-- Header with toggle -->
                     <div class="mb-8 flex items-center justify-between">
                         <!-- Removed AnimatePresence and motion.div around logo/title -->
@@ -108,7 +129,7 @@ const pageTransition = {
                             variant="ghost"
                             size="sm"
                             @click="sidebarCollapsed = !sidebarCollapsed"
-                            class="p-2 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white">
+                            class="p-2 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white hidden md:inline-flex">
                             <Menu v-if="sidebarCollapsed" class="h-4 w-4" />
                             <X v-else class="h-4 w-4" />
                         </Button>

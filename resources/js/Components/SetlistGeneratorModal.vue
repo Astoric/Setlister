@@ -251,7 +251,8 @@ const formatDuration = (ms) => {
         @update:open="emit('close')"
         :max-width="'3xl'"
         v-if="show">
-        <DialogContent class="bg-[#191919] border-gray-600 text-white">
+        <DialogContent
+            class="bg-[#191919] border-gray-600 text-white w-full max-w-[98vw] sm:max-w-3xl p-2 sm:p-8 rounded-lg sm:rounded-2xl overflow-y-auto max-h-[95vh]">
             <DialogHeader>
                 <DialogTitle
                     class="text-2xl font-semibold text-white text-center">

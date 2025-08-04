@@ -126,17 +126,31 @@ class SpotifyAuthController extends Controller
     /**
      * Refresh the Spotify access token using the refresh token.
      */
+    /**
+     * Refresh the Spotify access token using the refresh token for the currently authenticated user.
+     * Also saves new refresh_token if returned by Spotify.
+     * @return bool
+     */
     public static function refreshSpotifyToken()
     {
         $user = Auth::user();
-        $refreshToken = $user->spotify_refresh_token;
+        return static::refreshSpotifyTokenForUser($user);
+    }
 
-        if (! $refreshToken) {
-            \Log::warning('Attempted to refresh Spotify token without a refresh token.');
-
+    /**
+     * Refresh the Spotify access token using the refresh token for a given user.
+     * Also saves new refresh_token if returned by Spotify.
+     * @param User|null $user
+     * @return bool
+     */
+    public static function refreshSpotifyTokenForUser(?User $user)
+    {
+        if (! $user || ! $user->spotify_refresh_token) {
+            \Log::warning('Attempted to refresh Spotify token without a refresh token or user.');
             return false;
         }
 
+        $refreshToken = $user->spotify_refresh_token;
         $credentials = self::getClientCredentials();
 
         try {
@@ -153,11 +167,16 @@ class SpotifyAuthController extends Controller
 
             $user->spotify_access_token = $data['access_token'];
             $user->spotify_token_expires_at = Carbon::now()->addSeconds($data['expires_in']);
+            // Save new refresh_token if provided (Spotify may rotate it)
+            if (isset($data['refresh_token']) && $data['refresh_token']) {
+                $user->spotify_refresh_token = $data['refresh_token'];
+            }
             $user->save();
 
             return true;
         } catch (\Illuminate\Http\Client\RequestException $e) {
             \Log::error('Spotify Token Refresh Error:', [
+                'user_id' => $user->id ?? null,
                 'status' => $e->response->status(),
                 'response' => $e->response->body(),
                 'message' => $e->getMessage(),
@@ -170,8 +189,7 @@ class SpotifyAuthController extends Controller
 
             return false;
         } catch (\Exception $e) {
-            \Log::error('General Spotify Refresh Error:', ['error' => $e->getMessage()]);
-
+            \Log::error('General Spotify Refresh Error:', ['user_id' => $user->id ?? null, 'error' => $e->getMessage()]);
             return false;
         }
     }
@@ -406,13 +424,12 @@ class SpotifyAuthController extends Controller
      *
      * @param  string  $trackName
      * @param  string|null  $artistName
+     * @param  User|null $user
      * @return array|null Format: ['id' => 'spotify_id', 'duration_ms' => 123456] on success, null if not found or error.
      */
     public static function searchSpotifyTrackWithDetails(string $trackName, ?string $artistName = null, ?User $user = null): ?array
     {
         $user = $user ?? Auth::user();
-        
-        // Use the passed $user instead of Auth::user()
         if (!$user || !$user->spotify_access_token) {
             \Log::warning('No user model or Spotify token provided to search for track details.');
             return null;
@@ -420,12 +437,12 @@ class SpotifyAuthController extends Controller
 
         // Check if token needs refreshing for the passed $user
         if (Carbon::now()->greaterThanOrEqualTo($user->spotify_token_expires_at)) {
-            $refreshed = static::refreshSpotifyTokenForUser($user); // <--- NEW STATIC METHOD
+            $refreshed = static::refreshSpotifyTokenForUser($user);
             if (!$refreshed) {
                 \Log::error('Could not refresh Spotify token for user ID: ' . $user->id . ' during track search.');
                 return null;
             }
-            // User model will be refreshed by refreshSpotifyTokenForUser
+            $user->refresh();
         }
 
         $query = "track:\"{$trackName}\"";
@@ -434,7 +451,7 @@ class SpotifyAuthController extends Controller
         }
 
         try {
-            $response = Http::withToken($user->spotify_access_token) // Use $user's token
+            $response = Http::withToken($user->spotify_access_token)
                 ->get('https://api.spotify.com/v1/search', [
                     'q' => $query,
                     'type' => 'track',
@@ -454,8 +471,7 @@ class SpotifyAuthController extends Controller
             }
         } catch (RequestException $e) {
             if ($e->response && $e->response->status() === 401) {
-                // If token is invalid/expired, log and nullify for the specific user
-                Log::error('Spotify 401 Unauthorized during track search for user ' . $user->id . '. Token may be invalid. Nullifying tokens.');
+                \Log::error('Spotify 401 Unauthorized during track search for user ' . $user->id . '. Token may be invalid. Nullifying tokens.');
                 $user->spotify_access_token = null;
                 $user->spotify_refresh_token = null;
                 $user->spotify_token_expires_at = null;

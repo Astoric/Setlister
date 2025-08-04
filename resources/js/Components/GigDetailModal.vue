@@ -65,7 +65,8 @@ const getAvatarFallback = (name) => {
         @update:open="emit('close')"
         :max-width="'lg'"
         v-if="show">
-        <DialogContent class="bg-[#191919] border-gray-600 text-white">
+        <DialogContent
+            class="bg-[#191919] border-gray-600 text-white w-full max-w-[95vw] sm:max-w-lg p-2 sm:p-6 rounded-lg sm:rounded-2xl overflow-y-auto max-h-[90vh]">
             <DialogHeader>
                 <div class="mb-4 flex justify-center">
                     <Avatar class="h-24 w-24 ring-2 ring-emerald-500/30">

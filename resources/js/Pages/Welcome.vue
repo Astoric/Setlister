@@ -125,7 +125,7 @@ const handleResetPassword = () => {
 
     <!-- Main Page Container with Gradient -->
     <div
-        class="min-h-screen bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 flex items-center justify-center p-4 sm:p-6">
+        class="min-h-screen bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 flex flex-col justify-center py-4 px-2 sm:py-8 sm:px-6">
         <Card
             class="w-full max-w-md bg-[#121212] border-gray-700 shadow-2xl sm:rounded-2xl rounded-lg">
             <CardContent class="p-4 sm:p-8">
