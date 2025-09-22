@@ -7,6 +7,8 @@ import { createApp, h } from "vue";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy";
 import { Link } from "@inertiajs/vue3";
 import { MotionPlugin } from "@vueuse/motion";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -22,6 +24,7 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .component("Link", Link)
+            .component("VueDatePicker", VueDatePicker)
             .use(MotionPlugin)
             .mount(el);
 

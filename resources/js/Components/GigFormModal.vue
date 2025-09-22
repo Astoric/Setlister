@@ -2,6 +2,8 @@
 import { computed, ref, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import InputError from "@/Components/InputError.vue";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 // New UI Components
 import Button from "@/Components/ui/Button.vue";
@@ -258,26 +260,66 @@ const deleteGig = () => {
     });
 };
 
-// Computed properties for date/time input splitting/joining
+const combinedDate = computed({
+    get: () => {
+        return form.gig_date_time ? new Date(form.gig_date_time) : null;
+    },
+    set: (val) => {
+        if (!val) {
+            form.gig_date_time = "";
+            return;
+        }
+        const YYYY = val.getFullYear();
+        const MM = String(val.getMonth() + 1).padStart(2, "0");
+        const DD = String(val.getDate()).padStart(2, "0");
+        const hh = String(val.getHours()).padStart(2, "0");
+        const mm = String(val.getMinutes()).padStart(2, "0");
+        form.gig_date_time = `${YYYY}-${MM}-${DD}T${hh}:${mm}`;
+    },
+});
+
+// DATE picker
 const dateInput = computed({
-    get: () => (form.gig_date_time ? form.gig_date_time.split("T")[0] : ""),
-    set: (value) => {
-        const time = form.gig_date_time
-            ? form.gig_date_time.split("T")[1]
-            : "00:00";
-        form.gig_date_time = value ? `${value}T${time}` : "";
+    get: () => combinedDate.value,
+    set: (val) => {
+        if (!val) {
+            combinedDate.value = null;
+            return;
+        }
+        let base = combinedDate.value || new Date("2000-01-01T00:00");
+        base = new Date(base);
+        base.setFullYear(val.getFullYear(), val.getMonth(), val.getDate());
+        combinedDate.value = base;
     },
 });
 
 const timeInput = computed({
-    get: () => (form.gig_date_time ? form.gig_date_time.split("T")[1] : ""),
-    set: (value) => {
-        const date = form.gig_date_time
-            ? form.gig_date_time.split("T")[0]
-            : "2000-01-01"; // Default date if time is set first
-        form.gig_date_time = value ? `${date}T${value}` : "";
+    get: () => {
+        if (!combinedDate.value) return null;
+        return {
+            hours: combinedDate.value.getHours(),
+            minutes: combinedDate.value.getMinutes(),
+        };
+    },
+    set: (val) => {
+        if (!val) {
+            combinedDate.value = null;
+            return;
+        }
+        let base = combinedDate.value || new Date("2000-01-01T00:00");
+        base = new Date(base); // clone
+        base.setHours(val.hours, val.minutes, 0, 0);
+        combinedDate.value = base;
     },
 });
+
+const dateformat = (date) => {
+    if (!date) return "";
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+};
 </script>
 
 <template>
@@ -312,6 +354,7 @@ const timeInput = computed({
                         v-model="form.artist_band_name"
                         required
                         autofocus
+                        placeholder="e.g., Frank Turner"
                         autocomplete="off" />
                     <InputError
                         class="mt-2"
@@ -327,6 +370,7 @@ const timeInput = computed({
                         class="mt-1 block w-full bg-[#191919] border-gray-600 text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
                         v-model="form.venue"
                         required
+                        placeholder="e.g., OVO Hydro"
                         autocomplete="off" />
                     <InputError class="mt-2" :message="form.errors.venue" />
                 </div>
@@ -336,14 +380,16 @@ const timeInput = computed({
                     <div class="space-y-2">
                         <Label for="gig_date_time_date">Date</Label>
                         <div class="relative">
-                            <Input
+                            <VueDatePicker
                                 id="gig_date_time_date"
-                                type="date"
                                 v-model="dateInput"
+                                auto-apply
+                                :hide-navigation="['time']"
+                                :format="dateformat"
+                                dark
                                 required
-                                class="w-full bg-[#191919] border-gray-600 text-white focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 pr-10" />
-                            <Calendar
-                                class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                placeholder="03/10/2001"
+                                class="w-full bg-[#191919] border-gray-600 text-white focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"></VueDatePicker>
                         </div>
                         <InputError
                             class="mt-2"
@@ -352,14 +398,18 @@ const timeInput = computed({
                     <div class="space-y-2">
                         <Label for="gig_date_time_time">Time</Label>
                         <div class="relative">
-                            <Input
-                                id="gig_date_time_time"
-                                type="time"
+                            <VueDatePicker
                                 v-model="timeInput"
+                                time-picker
+                                dark
                                 required
-                                class="w-full bg-[#191919] border-gray-600 text-white focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 pr-10" />
+                                auto-apply
+                                :start-time="null"
+                                placeholder="--:--"
+                                class="dp__theme_dark dp_time w-full" />
+
                             <Clock
-                                class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                         </div>
                     </div>
                 </div>
@@ -502,3 +552,57 @@ const timeInput = computed({
         </DialogContent>
     </Dialog>
 </template>
+
+<style>
+.dp__theme_dark {
+    /* Background & text */
+    --dp-background-color: #17191c;
+    --dp-text-color: #fff;
+    --dp-primary-color: #17d75f;
+
+    /* Borders */
+    --dp-border-color: #4b5563; /* Tailwind gray-600 */
+    --dp-border-color-hover: #4b5563;
+    --dp-border-color-focus: #10b981; /* emerald-500 */
+    --dp-menu-border-color: #4b5563;
+
+    /* Radius & sizing */
+    --dp-border-radius: 0.375rem; /* rounded-md */
+    /* top/bottom=4px (py-1) | right=40px (room for icon) | left=12px (px-3) */
+
+    --dp-font-size: 0.875rem; /* md:text-sm */
+    --dp-cell-border-radius: 0.25rem;
+
+    /* Icon */
+    --dp-icon-color: #9ca3af; /* Tailwind gray-400 */
+    --dp-hover-icon-color: #d1d5db; /* Tailwind gray-300 */
+
+    /* Focus ring (imitates Tailwind's focus-visible:border & ring) */
+    --dp-border-color-focus: #10b981; /* emerald-500 */
+    --dp-box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+
+    /* Calendar popup */
+    --dp-menu-min-width: 260px;
+    --dp-menu-padding: 6px 8px;
+
+    .dp__input {
+        transition: all 0.2s ease-in-out;
+    }
+
+    .dp__input:focus {
+        border-color: #10b981 !important; /* emerald-500 */
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+    }
+
+    .dp__input::placeholder {
+        color: #848a96 !important;
+        opacity: 1;
+    }
+}
+
+.dp_time {
+    .dp__input_icon {
+        display: none !important;
+    }
+}
+</style>
