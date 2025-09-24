@@ -71,7 +71,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [GigController::class, 'index'])->name('dashboard');
     Route::get('/past-gigs', [GigController::class, 'pastGigs'])->name('past-gigs');
     Route::post('/gigs', [GigController::class, 'store'])->name('gigs.store');
-    Route::get('/gigs/search', [GigController::class, 'searchPage'])->name('gigs.search');
     Route::patch('/gigs/{gig}', [GigController::class, 'update'])->name('gigs.update');
     Route::delete('/gigs/{gig}', [GigController::class, 'destroy'])->name('gigs.destroy');
     Route::get('/gigs/{gig}', [GigController::class, 'show'])->name('gigs.show');
@@ -103,6 +102,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
      * Statistics Page
      */
     Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
+
+    /**
+     * Search Feature
+     */
+    Route::get('/api/gigs/search', [GigController::class, 'searchApi'])
+    ->name('gigs.search.api');
 });
 
 Route::get('/gigs/search/test', function () {

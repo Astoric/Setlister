@@ -213,13 +213,13 @@ class GigController extends Controller
         }
     }
 
-    public function searchPage(Request $request)
+public function searchApi(Request $request)
 {
     $query = $request->input('q');
-    $user = Auth::user();
+    $user  = Auth::user();
 
     $upcoming = collect();
-    $past = collect();
+    $past     = collect();
 
     if ($query && strlen($query) > 1) {
         $gigs = $user->gigs()
@@ -232,7 +232,7 @@ class GigController extends Controller
             ->orderBy('gig_date_time')
             ->get();
 
-        // ✅ Normalize support_acts / people_attending here
+        // normalize to arrays
         $gigs->each(function ($gig) {
             $gig->support_acts = is_array($gig->support_acts)
                 ? $gig->support_acts
@@ -246,8 +246,7 @@ class GigController extends Controller
         $past     = $gigs->filter(fn ($gig) => $gig->gig_date_time->isPast())->values();
     }
 
-    return Inertia::render('SearchResults', [
-        'query'    => $query,
+    return response()->json([
         'upcoming' => $upcoming,
         'past'     => $past,
     ]);
