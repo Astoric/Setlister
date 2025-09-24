@@ -213,5 +213,43 @@ class GigController extends Controller
         }
     }
 
-    // Removed the protected function autoGenerateSetlistsForPastGigs as its logic is now in the Job.
+    public function searchPage(Request $request)
+{
+    $query = $request->input('q');
+    $user = Auth::user();
+
+    $upcoming = collect();
+    $past = collect();
+
+    if ($query && strlen($query) > 1) {
+        $gigs = $user->gigs()
+            ->where(function ($q2) use ($query) {
+                $q2->where('artist_band_name', 'like', "%{$query}%")
+                   ->orWhere('venue', 'like', "%{$query}%")
+                   ->orWhereJsonContains('support_acts', $query)
+                   ->orWhereJsonContains('people_attending', $query);
+            })
+            ->orderBy('gig_date_time')
+            ->get();
+
+        // ✅ Normalize support_acts / people_attending here
+        $gigs->each(function ($gig) {
+            $gig->support_acts = is_array($gig->support_acts)
+                ? $gig->support_acts
+                : (empty($gig->support_acts) ? [] : json_decode($gig->support_acts, true));
+            $gig->people_attending = is_array($gig->people_attending)
+                ? $gig->people_attending
+                : (empty($gig->people_attending) ? [] : json_decode($gig->people_attending, true));
+        });
+
+        $upcoming = $gigs->filter(fn ($gig) => $gig->gig_date_time->isFuture())->values();
+        $past     = $gigs->filter(fn ($gig) => $gig->gig_date_time->isPast())->values();
+    }
+
+    return Inertia::render('SearchResults', [
+        'query'    => $query,
+        'upcoming' => $upcoming,
+        'past'     => $past,
+    ]);
+}
 }

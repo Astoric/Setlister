@@ -263,7 +263,15 @@ const pageTransition = {
                                 <Search
                                     class="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400 h-4 w-4" />
                                 <Input
-                                    placeholder="Search by Album title, UPC, Artist"
+                                    v-model="searchQuery"
+                                    placeholder="Search gigs..."
+                                    @keydown.enter="
+                                        router.visit(
+                                            route('gigs.search', {
+                                                q: searchQuery,
+                                            })
+                                        )
+                                    "
                                     class="w-full sm:w-80 pl-10 bg-[#191919] border-gray-600 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 text-xs sm:text-base" />
                             </div>
 

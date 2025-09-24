@@ -294,12 +294,6 @@ const handleResetPassword = () => {
                                         Remember me
                                     </span>
                                 </label>
-                                <Button
-                                    variant="link"
-                                    @click.prevent="loginState = 'forgot'"
-                                    class="text-sm text-emerald-400 hover:text-emerald-300">
-                                    Forgot password?
-                                </Button>
                             </div>
 
                             <div class="space-y-2 sm:space-y-3">
@@ -309,6 +303,14 @@ const handleResetPassword = () => {
                                     class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 transition-all duration-200"
                                     size="lg">
                                     Sign In
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    @click.prevent="loginState = 'forgot'"
+                                    class="w-full text-gray-400 hover:bg-gray-700 hover:text-white transition-all duration-200"
+                                    size="lg">
+                                    Forgot password?
                                 </Button>
                                 <Button
                                     type="button"

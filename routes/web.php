@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\GigController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -70,6 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [GigController::class, 'index'])->name('dashboard');
     Route::get('/past-gigs', [GigController::class, 'pastGigs'])->name('past-gigs');
     Route::post('/gigs', [GigController::class, 'store'])->name('gigs.store');
+    Route::get('/gigs/search', [GigController::class, 'searchPage'])->name('gigs.search');
     Route::patch('/gigs/{gig}', [GigController::class, 'update'])->name('gigs.update');
     Route::delete('/gigs/{gig}', [GigController::class, 'destroy'])->name('gigs.destroy');
     Route::get('/gigs/{gig}', [GigController::class, 'show'])->name('gigs.show');
@@ -101,6 +103,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
      * Statistics Page
      */
     Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
+});
+
+Route::get('/gigs/search/test', function () {
+    return 'Search route works without auth';
 });
 
 /**
