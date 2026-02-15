@@ -65,30 +65,35 @@ class StatsController extends Controller
         $remainingMinutes = $totalMinutes % 60;
         $totalDurationDisplay = "{$totalHours}h {$remainingMinutes}m";
 
-        // 5. Most Frequent Venue
-        $venueCounts = $allGigs->groupBy('venue')->map->count();
-        $topVenue = $venueCounts->isNotEmpty() ? $venueCounts->sortDesc()->first() : 0;
-        $topVenueName = $venueCounts->isNotEmpty() ? $venueCounts->sortDesc()->keys()->first() : 'N/A';
+        // 5. Most Frequent Venue (normalized)
+        $venueGroups = $allGigs->groupBy(fn($gig) => strtolower(trim($gig->venue)));
+        $topVenueGroup = $venueGroups->sortByDesc->count()->first();
+        $topVenue = $topVenueGroup ? $topVenueGroup->count() : 0;
+        $topVenueName = $topVenueGroup ? $topVenueGroup->first()->venue : 'N/A';
         $topVenueDisplay = $topVenueName !== 'N/A' ? "{$topVenueName} ({$topVenue} gigs)" : 'N/A';
 
-        // 6. Most Frequent Band
-        $bandCounts = $allGigs->groupBy('artist_band_name')->map->count();
-        $topBand = $bandCounts->isNotEmpty() ? $bandCounts->sortDesc()->first() : 0;
-        $topBandName = $bandCounts->isNotEmpty() ? $bandCounts->sortDesc()->keys()->first() : 'N/A';
+        // 6. Most Frequent Band (normalized)
+        $bandGroups = $allGigs->groupBy(fn($gig) => strtolower(trim($gig->artist_band_name)));
+        $topBandGroup = $bandGroups->sortByDesc->count()->first();
+        $topBand = $topBandGroup ? $topBandGroup->count() : 0;
+        $topBandName = $topBandGroup ? $topBandGroup->first()->artist_band_name : 'N/A';
         $topBandDisplay = $topBandName !== 'N/A' ? "{$topBandName} ({$topBand} times)" : 'N/A';
 
-        // 7. Most Frequent Attendee
-        $attendeeCounts = collect();
-        $allGigs->each(function ($gig) use (&$attendeeCounts) {
-            // $gig->people_attending is already ensured to be an array by the initial loop
-            if (is_array($gig->people_attending)) { // Double-check just to be safe
+        // 7. Most Frequent Attendee (normalized)
+        $attendeeData = collect(); // map of normalized name => ['count' => X, 'nice_name' => Y]
+        $allGigs->each(function ($gig) use (&$attendeeData) {
+            if (is_array($gig->people_attending)) {
                 foreach ($gig->people_attending as $person) {
-                    $attendeeCounts->put($person, ($attendeeCounts->get($person) ?? 0) + 1);
+                    $normalized = strtolower(trim($person));
+                    $item = $attendeeData->get($normalized, ['count' => 0, 'nice_name' => trim($person)]);
+                    $item['count']++;
+                    $attendeeData->put($normalized, $item);
                 }
             }
         });
-        $topAttendee = $attendeeCounts->isNotEmpty() ? $attendeeCounts->sortDesc()->first() : 0;
-        $topAttendeeName = $attendeeCounts->isNotEmpty() ? $attendeeCounts->sortDesc()->keys()->first() : 'N/A';
+        $topAttendeeInfo = $attendeeData->sortByDesc('count')->first();
+        $topAttendee = $topAttendeeInfo ? $topAttendeeInfo['count'] : 0;
+        $topAttendeeName = $topAttendeeInfo ? $topAttendeeInfo['nice_name'] : 'N/A';
         $topAttendeeDisplay = $topAttendeeName !== 'N/A' ? "{$topAttendeeName} ({$topAttendee} gigs)" : 'N/A';
 
         // 8. Recent Activity (based on latest gig updated_at or created_at)
@@ -110,7 +115,7 @@ class StatsController extends Controller
         $achievements = [
             ['label' => 'Music Explorer', 'unlocked' => true],
             ['label' => 'Concert Regular', 'unlocked' => ($totalPastGigs >= 5)],
-            ['label' => 'Venue Master', 'unlocked' => ($venueCounts->count() >= 15)],
+            ['label' => 'Venue Master', 'unlocked' => ($venueGroups->count() >= 15)],
         ];
 
         return Inertia::render('Stats', [
