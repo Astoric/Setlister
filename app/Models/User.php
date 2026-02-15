@@ -80,7 +80,7 @@ class User extends Authenticatable
      */
     public function getSpotifyProfilePictureUrlAttribute(): ?string
     {
-        return $this->attributes['spotify_profile_picture_url'];
+        return $this->attributes['spotify_profile_picture_url'] ?? null;
     }
 
     /**
@@ -88,7 +88,7 @@ class User extends Authenticatable
      */
     public function getSpotifyAppClientIdAttribute(): ?string
     {
-        return $this->attributes['spotify_app_client_id'];
+        return $this->attributes['spotify_app_client_id'] ?? null;
     }
 
     /**
@@ -96,6 +96,6 @@ class User extends Authenticatable
      */
     public function getSpotifyAppClientSecretAttribute(): ?string
     {
-        return $this->attributes['spotify_app_client_secret'];
+        return $this->attributes['spotify_app_client_secret'] ?? null;
     }
 }
