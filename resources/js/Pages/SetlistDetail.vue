@@ -81,20 +81,24 @@ const generatePlaylist = () => {
         pagePropsFlash.error = null;
     }
 
-    router.post(route("setlists.generate-spotify-playlist", props.gig.id), {
-        // PASS GIG ID
-        onStart: () => {},
-        onFinish: () => {
-            isGenerating.value = false;
-        },
-        onSuccess: () => {
-            playlistGenerated.value = true;
-        },
-        onError: (errors) => {
-            playlistGenerated.value = false;
-            console.error("Playlist generation error:", errors);
-        },
-    });
+    router.post(
+        route("setlists.generate-spotify-playlist", props.gig.id),
+        {},
+        {
+            // PASS GIG ID
+            onStart: () => {},
+            onFinish: () => {
+                isGenerating.value = false;
+            },
+            onSuccess: () => {
+                playlistGenerated.value = true;
+            },
+            onError: (errors) => {
+                playlistGenerated.value = false;
+                console.error("Playlist generation error:", errors);
+            },
+        }
+    );
 };
 
 const getAvatarFallback = (name) => {
