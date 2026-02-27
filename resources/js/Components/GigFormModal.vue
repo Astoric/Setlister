@@ -1,6 +1,7 @@
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import { useForm } from "@inertiajs/vue3";
+import axios from "axios";
 import InputError from "@/Components/InputError.vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
@@ -8,6 +9,7 @@ import "@vuepic/vue-datepicker/dist/main.css";
 // New UI Components
 import Button from "@/Components/ui/Button.vue";
 import Input from "@/Components/ui/Input.vue";
+import Combobox from "@/Components/ui/Combobox.vue";
 import Label from "@/Components/ui/Label.vue";
 import Dialog from "@/Components/ui/Dialog.vue";
 import DialogContent from "@/Components/ui/DialogContent.vue";
@@ -38,6 +40,25 @@ const form = useForm({
 // Internal refs for the individual tag input fields
 const supportActInput = ref("");
 const attendeeInput = ref("");
+
+// State for venues for auto-suggestion
+const venues = ref([]);
+
+/**
+ * Fetches unique venues for the user from the API.
+ */
+const fetchVenues = async () => {
+    try {
+        const response = await axios.get(route("venues.api"));
+        venues.value = response.data;
+    } catch (error) {
+        console.error("Error fetching venues:", error);
+    }
+};
+
+onMounted(() => {
+    fetchVenues();
+});
 
 // State for delete confirmation modal
 const confirmingGigDeletion = ref(false);
@@ -363,15 +384,13 @@ const dateformat = (date) => {
 
                 <!-- Venue -->
                 <div class="space-y-2">
-                    <Label for="venue">Venue</Label>
-                    <Input
-                        id="venue"
-                        type="text"
-                        class="mt-1 block w-full bg-[#191919] border-gray-600 text-white placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                    <Label for="venue_combobox">Venue</Label>
+                    <Combobox
+                        id="venue_combobox"
                         v-model="form.venue"
-                        required
+                        :options="venues"
                         placeholder="e.g., OVO Hydro"
-                        autocomplete="off" />
+                        empty-message="No previous venues found. Type to add new." />
                     <InputError class="mt-2" :message="form.errors.venue" />
                 </div>
 

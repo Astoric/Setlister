@@ -81,6 +81,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
      */
     Route::get('/api/gigs/search', [GigController::class, 'searchApi'])
     ->name('gigs.search.api');
+
+    Route::get('/api/venues', [GigController::class, 'venuesApi'])
+    ->name('venues.api');
 });
 
 Route::get('/gigs/search/test', function () {

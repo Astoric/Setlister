@@ -251,4 +251,15 @@ public function searchApi(Request $request)
         'past'     => $past,
     ]);
 }
+
+public function venuesApi(Request $request)
+{
+    $venues = Auth::user()->gigs()
+        ->select('venue')
+        ->distinct()
+        ->orderBy('venue')
+        ->pluck('venue');
+
+    return response()->json($venues);
+}
 }
